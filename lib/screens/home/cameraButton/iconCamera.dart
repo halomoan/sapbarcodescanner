@@ -20,7 +20,7 @@ class IconCamera extends StatelessWidget {
                 style: TextStyle(
                     //fontWeight: FontWeight.bold,
                     color: Colors.white,
-                    fontSize: 20),
+                    fontSize: 18),
               )),
             ]));
   }

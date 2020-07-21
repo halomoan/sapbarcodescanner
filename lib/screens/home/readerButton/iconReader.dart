@@ -20,7 +20,7 @@ class IconReader extends StatelessWidget {
                 style: TextStyle(
                     //fontWeight: FontWeight.bold,
                     color: Colors.black,
-                    fontSize: 20),
+                    fontSize: 18),
               )),
             ]));
   }

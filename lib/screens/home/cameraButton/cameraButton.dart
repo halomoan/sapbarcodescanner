@@ -3,22 +3,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import './iconCamera.dart';
 
-class BarcodeData {
-  String barcodeNo = "";
-  String companyCode = "";
-  String mainCode = "";
-  String subCode = "";
-  String number = "";
-}
-
-class BarcodeList {
-  List<BarcodeData> items;
-
-  void add(BarcodeData item) {
-    items.add(item);
-  }
-}
-
 class CameraButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

@@ -5,31 +5,38 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 
-class TakePictureScreen extends StatefulWidget {
+class CameraWidget extends StatefulWidget {
   @override
-  TakePictureScreenState createState() => TakePictureScreenState();
+  CameraWidgetState createState() => CameraWidgetState();
 }
 
-class TakePictureScreenState extends State<TakePictureScreen> {
+class CameraWidgetState extends State<CameraWidget> {
+  List<CameraDescription> cameras;
   CameraController _controller;
+  bool isReady = false;
   Future<void> _initializeControllerFuture;
 
-  _initApp() async {
-    final cameras = await availableCameras();
-    final firstCam = cameras.first;
-
-    _controller = CameraController(
-      firstCam,
-      ResolutionPreset.medium,
-    );
-
-    _initializeControllerFuture = _controller.initialize();
+  Future<void> setupCameras() async {
+    try {
+      cameras = await availableCameras();
+      _controller =
+          new CameraController(cameras.first, ResolutionPreset.medium);
+      _initializeControllerFuture = _controller.initialize();
+      await _initializeControllerFuture;
+    } on CameraException catch (_) {
+      setState(() {
+        isReady = false;
+      });
+    }
+    setState(() {
+      isReady = true;
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    _initApp();
+    setupCameras();
   }
 
   @override
@@ -43,12 +50,10 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Take a picture')),
-      // Wait until the controller is initialized before displaying the
-      // camera preview. Use a FutureBuilder to display a loading spinner
-      // until the controller has finished initializing.
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
+          print(snapshot.connectionState);
           if (snapshot.connectionState == ConnectionState.done) {
             // If the Future is complete, display the preview.
             return CameraPreview(_controller);
@@ -60,10 +65,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.camera_alt),
-        // Provide an onPressed callback.
         onPressed: () async {
-          // Take the Picture in a try / catch block. If anything goes wrong,
-          // catch the error.
           try {
             // Ensure that the camera is initialized.
             await _initializeControllerFuture;
@@ -105,8 +107,9 @@ class DisplayPictureScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(imagePath);
     return Scaffold(
-      appBar: AppBar(title: Text('Display the Picture')),
+      appBar: AppBar(title: Text('Preview Picture')),
       // The image is stored as a file on the device. Use the `Image.file`
       // constructor with the given path to display the image.
       body: Image.file(File(imagePath)),

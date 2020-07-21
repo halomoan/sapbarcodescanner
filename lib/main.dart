@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'screens/home/home.dart';
-import 'screens/barcodeReader/barcodeReader.dart';
-import 'screens/cameraUtils/TakePictureScreen.dart';
+import 'screens/previewBarcode/previewBarcode.dart';
+import 'screens/cameraUtils/cameraWidget.dart';
 
 Future<Null> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,8 +24,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => Home(),
-        '/display': (context) => BarcodeReader(),
-        '/camera': (context) => TakePictureScreen()
+        '/display': (context) => PreviewBarcode(),
+        '/camera': (context) => CameraWidget()
       },
     );
   }

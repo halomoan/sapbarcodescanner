@@ -19,9 +19,9 @@ class Home extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 10),
+            //SizedBox(height: 10),
             MenuList(),
-            ImageBanner("assets/images/pphg.png")
+            ImageBanner("assets/images/pphg.png"),
           ]),
     );
   }
