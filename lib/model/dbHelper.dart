@@ -47,7 +47,7 @@ class DBHelper {
                FOREIGN KEY (barcodeid) REFERENCES sapfa (barcodeid) 
                   ON DELETE CASCADE ON UPDATE NO ACTION           
               )""");
-    await db.execute("CREATE INDEX scanfa_idx ON scanfa(barcodeid)");
+    await db.execute("CREATE UNIQUE INDEX scanfa_idx ON scanfa(barcodeid,seq)");
   }
 
   Future<int> addSAPFA(SAPFA item) async {
@@ -111,6 +111,27 @@ class DBHelper {
     });
   }
 
+  Future<List<SAPFA>> getItems(String id) async {
+    final db = await init();
+    final maps = await db.rawQuery(
+        'select sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc, sapfa.qty, scanfa.seq, createdat from sapfa left join scanfa using(barcodeid) where sapfa.barcodeid = $id order by scanfa.seq');
+
+    return List.generate(maps.length, (i) {
+      //create a list of memos
+      return SAPFA(
+          barcodeId: maps[i]['barcodeid'],
+          coCode: maps[i]['cocode'],
+          mainCode: maps[i]['maincode'],
+          subCode: maps[i]['subcode'],
+          seq: maps[i]['seq'],
+          desc: maps[i]['desc'],
+          loc: maps[i]['loc'],
+          qty: maps[i]['qty'],
+          scanqty: maps[i]['scanqty'],
+          createdAt: maps[i]['createdat']);
+    });
+  }
+
   Future<int> delSAPFA(int id) async {
     //returns number of items deleted
     final db = await init();
@@ -121,6 +142,16 @@ class DBHelper {
         );
 
     return result;
+  }
+
+  Future<bool> reset() async {
+    //returns number of items deleted
+    final db = await init();
+
+    await db.execute('DELETE FROM sapfa');
+    await db.execute('DELETE FROM scanfa');
+
+    return true;
   }
 
   Future<int> updateSAPFA(int id, SAPFA item) async {

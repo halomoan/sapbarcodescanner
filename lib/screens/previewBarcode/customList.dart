@@ -19,31 +19,46 @@ class CustomListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: SizedBox(
-        height: 100,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            AspectRatio(
-              aspectRatio: 1.0,
-              child: thumbnail,
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(10.0, 0.0, 2.0, 0.0),
-                child: _BarcodeInfo(
-                    barcodeid: barcodeid,
-                    desc: desc,
-                    tqty: tqty,
-                    scanqty: scanqty,
-                    latestdate: latestdate),
+        padding: const EdgeInsets.symmetric(horizontal: 1.0),
+        child: SizedBox(
+          height: 100,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: FractionalOffset.bottomRight,
+                colors: [Colors.grey[300], Colors.white70],
+                stops: [0, 1],
               ),
-            )
-          ],
-        ),
-      ),
-    );
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: thumbnail,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10.0, 5.0, 0.0, 0.0),
+                    child: _BarcodeInfo(
+                        barcodeid: barcodeid,
+                        desc: desc,
+                        tqty: tqty,
+                        scanqty: scanqty,
+                        latestdate: latestdate),
+                  ),
+                ),
+                Container(
+                    width: 50.0,
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[Icon(Icons.delete, size: 25.0)]))
+              ],
+            ),
+          ),
+        ));
   }
 }
 
@@ -71,7 +86,7 @@ class _BarcodeInfo extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Expanded(
-            flex: 1,
+            flex: 0,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -91,7 +106,7 @@ class _BarcodeInfo extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 12.0,
-                    color: Colors.black87,
+                    color: Colors.black,
                   ),
                 ),
                 const Padding(padding: EdgeInsets.only(bottom: 2.0)),
@@ -99,7 +114,7 @@ class _BarcodeInfo extends StatelessWidget {
                   tqty == null ? 'Qty: 0' : 'Qty: $tqty',
                   style: const TextStyle(
                     fontSize: 12.0,
-                    color: Colors.black87,
+                    color: Colors.black,
                   ),
                 ),
               ],
@@ -115,7 +130,7 @@ class _BarcodeInfo extends StatelessWidget {
                   scanqty == null ? 'Scanned: 0' : 'Scanned: $scanqty',
                   style: const TextStyle(
                     fontSize: 12.0,
-                    color: Colors.amber,
+                    color: Colors.black,
                   ),
                 ),
                 Text(

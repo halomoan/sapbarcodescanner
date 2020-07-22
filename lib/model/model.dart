@@ -5,6 +5,7 @@ class SAPFA {
   String subCode = "";
   String desc = "";
   String loc = "";
+  String seq;
   int qty = 0;
   int scanqty = 0;
   int createdAt = 0;
@@ -18,6 +19,7 @@ class SAPFA {
       this.loc,
       this.qty,
       this.scanqty,
+      this.seq,
       this.createdAt});
 
   Map<String, dynamic> toMap() {
@@ -41,6 +43,7 @@ class SAPFA {
     loc = map['loc'];
     qty = map['qty'];
     scanqty = map['scanqty'];
+    seq = map['seq'];
     createdAt = map['createdat'];
   }
 }

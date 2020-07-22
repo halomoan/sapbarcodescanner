@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:sapfascanner/model/dbHelper.dart';
 import 'package:intl/intl.dart';
+import 'previewDetail.dart';
 
 import 'customList.dart';
 
@@ -34,18 +35,20 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
             child: Text('Add'),
             onPressed: () {
               barcode = SAPFA(
-                  barcodeId: '200010000001',
+                  barcodeId: '200050000001',
                   coCode: '2000',
-                  mainCode: '1000',
+                  mainCode: '5000',
                   subCode: '0001',
                   desc: 'Washing Machine',
                   loc: 'Basement 1',
-                  qty: 100);
+                  qty: 5);
               _dbHelper.addSAPFA(barcode);
 
-              scancode = SCANFA(barcodeId: '200010000001', seq: '0001');
+              scancode = SCANFA(barcodeId: '200050000001', seq: '0001');
               _dbHelper.addScanFA(scancode);
-              scancode = SCANFA(barcodeId: '200010000001', seq: '0002');
+              scancode = SCANFA(barcodeId: '200050000001', seq: '0002');
+              _dbHelper.addScanFA(scancode);
+              scancode = SCANFA(barcodeId: '200050000001', seq: '0002');
               _dbHelper.addScanFA(scancode);
             },
             color: Colors.blue,
@@ -65,27 +68,53 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
             color: Colors.red,
             textColor: Colors.white,
           ),
+          FlatButton(
+            child: Text('Reset'),
+            onPressed: () async {
+              await _dbHelper.reset();
+            },
+            color: Colors.red,
+            textColor: Colors.white,
+          ),
           Expanded(
             child: ListView.separated(
                 itemBuilder: (context, index) {
-                  return CustomListItem(
-                    desc: barcodes[index].desc,
-                    tqty: barcodes[index].qty,
-                    scanqty: barcodes[index].scanqty,
-                    latestdate: f.format(DateTime.fromMillisecondsSinceEpoch(
-                        barcodes[index].createdAt * 1000)),
-                    thumbnail: Container(
-                      decoration: const BoxDecoration(color: Colors.blue),
-                    ),
-                    barcodeid:
-                        "${barcodes[index].coCode}-${barcodes[index].mainCode}-${barcodes[index].subCode}",
-                  );
+                  return GestureDetector(
+                      child: CustomListItem(
+                        desc: barcodes[index].desc,
+                        tqty: barcodes[index].qty,
+                        scanqty: barcodes[index].scanqty,
+                        latestdate: f.format(
+                            DateTime.fromMillisecondsSinceEpoch(
+                                barcodes[index].createdAt * 1000)),
+                        thumbnail: Image.asset(
+                          "assets/images/barcode.png",
+                          fit: BoxFit.fill,
+                        ),
+                        barcodeid:
+                            "${barcodes[index].coCode}-${barcodes[index].mainCode}-${barcodes[index].subCode}",
+                      ),
+                      onTap: () => _onItemTap(
+                          context,
+                          barcodes[index].barcodeId,
+                          barcodes[index].desc,
+                          barcodes[index].qty));
                 },
-                separatorBuilder: (context, index) => Divider(),
+                separatorBuilder: (context, index) => Container(
+                    height: 1, width: double.infinity, color: Colors.white),
                 itemCount: barcodes.length),
           )
         ],
       )),
     );
+  }
+
+  _onItemTap(BuildContext context, String id, String text, int qty) {
+    //print('Go Next $id');
+    //Navigator.pushNamed(context, "/detail");
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => PreviewDetail(id: id, text: text, qty: qty)));
   }
 }
