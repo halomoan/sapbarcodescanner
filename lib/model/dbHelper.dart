@@ -111,26 +111,62 @@ class DBHelper {
     });
   }
 
-  Future<List<SAPFA>> getItems(String id) async {
+  Future<List<SCANFA>> getItems(String id, int qty) async {
     final db = await init();
-    final maps = await db.rawQuery(
-        'select sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc, sapfa.qty, scanfa.seq, createdat from sapfa left join scanfa using(barcodeid) where sapfa.barcodeid = $id order by scanfa.seq');
+    final maps = await db
+        .rawQuery('select * from scanfa where barcodeid = $id order by seq');
 
-    return List.generate(maps.length, (i) {
-      //create a list of memos
-      return SAPFA(
-          barcodeId: maps[i]['barcodeid'],
-          coCode: maps[i]['cocode'],
-          mainCode: maps[i]['maincode'],
-          subCode: maps[i]['subcode'],
-          seq: maps[i]['seq'],
-          desc: maps[i]['desc'],
-          loc: maps[i]['loc'],
-          qty: maps[i]['qty'],
-          scanqty: maps[i]['scanqty'],
-          createdAt: maps[i]['createdat']);
-    });
+    List<SCANFA> lst = [];
+    if (maps.length > 0 && qty > 0) {
+      var j = 0;
+
+      for (var i = 1; i <= qty; i++) {
+        if (j < maps.length && int.parse(maps[j]['seq']) == i) {
+          lst.add(SCANFA(
+              barcodeId: maps[j]['barcodeid'],
+              seq: maps[j]['seq'],
+              createdAt: maps[j]['createdat']));
+          j++;
+        } else {
+          lst.add(SCANFA(
+              barcodeId: maps[0]['barcodeid'],
+              seq: i.toString().padLeft(4, '0'),
+              createdAt: 0));
+        }
+      }
+    }
+
+    // var lst = List.generate(maps.length, (i) {
+    //   //create a list of memos
+    //   return SCANFA(
+    //       barcodeId: maps[i]['barcodeid'],
+    //       seq: maps[i]['seq'],
+    //       createdAt: maps[i]['createdat']);
+    // });
+
+    return lst;
   }
+
+  // Future<List<SAPFA>> getItems(String id) async {
+  //   final db = await init();
+  //   final maps = await db.rawQuery(
+  //       'select sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc, sapfa.qty, scanfa.seq, createdat from sapfa left join scanfa using(barcodeid) where sapfa.barcodeid = $id order by scanfa.seq');
+
+  //   return List.generate(maps.length, (i) {
+  //     //create a list of memos
+  //     return SAPFA(
+  //         barcodeId: maps[i]['barcodeid'],
+  //         coCode: maps[i]['cocode'],
+  //         mainCode: maps[i]['maincode'],
+  //         subCode: maps[i]['subcode'],
+  //         seq: maps[i]['seq'],
+  //         desc: maps[i]['desc'],
+  //         loc: maps[i]['loc'],
+  //         qty: maps[i]['qty'],
+  //         scanqty: maps[i]['scanqty'],
+  //         createdAt: maps[i]['createdat']);
+  //   });
+  // }
 
   Future<int> delSAPFA(int id) async {
     //returns number of items deleted

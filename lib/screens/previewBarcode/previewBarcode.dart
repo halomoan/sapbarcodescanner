@@ -17,7 +17,7 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
   SAPFA barcode;
   SCANFA scancode;
   List<dynamic> barcodes = [];
-  final f = new DateFormat('yyyy-MM-dd hh:mm');
+  final f = new DateFormat('yyyy-MM-dd hh:mm a');
 
   @override
   void initState() {
@@ -35,20 +35,20 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
             child: Text('Add'),
             onPressed: () {
               barcode = SAPFA(
-                  barcodeId: '200060000001',
+                  barcodeId: '20007000001001',
                   coCode: '2000',
-                  mainCode: '6000',
-                  subCode: '0001',
+                  mainCode: '700000',
+                  subCode: '1001',
                   desc: 'Escalator',
                   loc: 'Level 1',
-                  qty: 5);
+                  qty: 15);
               _dbHelper.addSAPFA(barcode);
 
-              scancode = SCANFA(barcodeId: '200060000001', seq: '0004');
+              scancode = SCANFA(barcodeId: '20007000001001', seq: '0014');
               _dbHelper.addScanFA(scancode);
-              scancode = SCANFA(barcodeId: '200060000001', seq: '0002');
+              scancode = SCANFA(barcodeId: '20007000001001', seq: '0012');
               _dbHelper.addScanFA(scancode);
-              scancode = SCANFA(barcodeId: '200060000001', seq: '0002');
+              scancode = SCANFA(barcodeId: '20007000001001', seq: '0002');
               _dbHelper.addScanFA(scancode);
             },
             color: Colors.blue,

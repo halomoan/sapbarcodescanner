@@ -17,7 +17,7 @@ class PreviewDetail extends StatefulWidget {
 
 class PreviewDetailState extends State<PreviewDetail> {
   final DBHelper _dbHelper = DBHelper();
-  final f = new DateFormat('yyyy-MM-dd hh:mm');
+  final f = new DateFormat('yyyy-MM-dd hh:mm a');
 
   @override
   void initState() {
@@ -29,7 +29,7 @@ class PreviewDetailState extends State<PreviewDetail> {
     return Scaffold(
         appBar: AppBar(title: Text(widget.text)),
         body: FutureBuilder<List>(
-          future: _getData(widget.id),
+          future: _getData(widget.id, widget.qty),
           initialData: List(),
           builder: (context, snapshot) {
             return snapshot.hasData
@@ -47,18 +47,24 @@ class PreviewDetailState extends State<PreviewDetail> {
         ));
   }
 
-  Widget _buildRow(SAPFA barcode) {
+  Widget _buildRow(SCANFA barcode) {
     return new ListTile(
       title: new Text(
-          "${barcode.coCode}-${barcode.mainCode}-${barcode.subCode} - ${barcode.seq}",
+          "${barcode.barcodeId.substring(0, 4)}-${barcode.barcodeId.substring(4, 10)}-${barcode.barcodeId.substring(10, 14)} - ${barcode.seq}",
           style: TextStyle(fontSize: 18.0)),
-      subtitle: Text("Scanned On: " +
-          f.format(
-              DateTime.fromMillisecondsSinceEpoch(barcode.createdAt * 1000))),
+      subtitle: barcode.createdAt > 0
+          ? Text("Scanned On: " +
+              f.format(DateTime.fromMillisecondsSinceEpoch(
+                  barcode.createdAt * 1000)))
+          : Text('Missing',
+              style: TextStyle(
+                color: Colors.red[800],
+                fontWeight: FontWeight.bold,
+              )),
     );
   }
 
-  Future<List<SAPFA>> _getData(String id) {
-    return _dbHelper.getItems(id);
+  Future<List<SCANFA>> _getData(String id, int qty) {
+    return _dbHelper.getItems(id, qty);
   }
 }
