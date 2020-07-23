@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:sapfascanner/model/dbHelper.dart';
-import 'package:intl/intl.dart';
-import 'previewDetail.dart';
 
 import 'customList.dart';
 
@@ -17,7 +15,6 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
   SAPFA barcode;
   SCANFA scancode;
   List<dynamic> barcodes = [];
-  final f = new DateFormat('yyyy-MM-dd hh:mm a');
 
   @override
   void initState() {
@@ -85,26 +82,13 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
               return snapshot.hasData
                   ? new ListView.separated(
                       itemBuilder: (context, index) {
-                        return GestureDetector(
-                            child: CustomListItem(
-                              desc: barcodes[index].desc,
-                              tqty: barcodes[index].qty,
-                              scanqty: barcodes[index].scanqty,
-                              latestdate: f.format(
-                                  DateTime.fromMillisecondsSinceEpoch(
-                                      barcodes[index].createdAt * 1000)),
-                              thumbnail: Image.asset(
-                                "assets/images/barcode.png",
-                                fit: BoxFit.fill,
-                              ),
-                              barcodeid:
-                                  "${barcodes[index].coCode}-${barcodes[index].mainCode}-${barcodes[index].subCode}",
-                            ),
-                            onTap: () => _onItemTap(
-                                context,
-                                barcodes[index].barcodeId,
-                                barcodes[index].desc,
-                                barcodes[index].qty));
+                        return CustomListItem(
+                          barcode: barcodes[index],
+                          thumbnail: Image.asset(
+                            "assets/images/barcode.png",
+                            fit: BoxFit.fill,
+                          ),
+                        );
                       },
                       separatorBuilder: (context, index) => Container(
                           height: 1,
@@ -123,14 +107,5 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
 
   Future<List<SAPFA>> _getData() {
     return _dbHelper.getList();
-  }
-
-  _onItemTap(BuildContext context, String id, String text, int qty) {
-    //print('Go Next $id');
-    //Navigator.pushNamed(context, "/detail");
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => PreviewDetail(id: id, text: text, qty: qty)));
   }
 }

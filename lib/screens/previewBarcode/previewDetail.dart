@@ -4,12 +4,9 @@ import 'package:sapfascanner/model/dbHelper.dart';
 import 'package:intl/intl.dart';
 
 class PreviewDetail extends StatefulWidget {
-  final String id;
-  final String text;
-  final int qty;
+  final SAPFA barcode;
 
-  const PreviewDetail({Key key, this.id, this.text, this.qty})
-      : super(key: key);
+  const PreviewDetail({Key key, this.barcode}) : super(key: key);
 
   @override
   PreviewDetailState createState() => PreviewDetailState();
@@ -27,9 +24,9 @@ class PreviewDetailState extends State<PreviewDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text(widget.text)),
+        appBar: AppBar(title: Text(widget.barcode.desc)),
         body: FutureBuilder<List>(
-          future: _getData(widget.id, widget.qty),
+          future: _getData(widget.barcode),
           initialData: List(),
           builder: (context, snapshot) {
             return snapshot.hasData
@@ -64,7 +61,7 @@ class PreviewDetailState extends State<PreviewDetail> {
     );
   }
 
-  Future<List<SCANFA>> _getData(String id, int qty) {
-    return _dbHelper.getItems(id, qty);
+  Future<List<SCANFA>> _getData(SAPFA barcode) {
+    return _dbHelper.getItems(barcode.barcodeId, barcode.qty);
   }
 }

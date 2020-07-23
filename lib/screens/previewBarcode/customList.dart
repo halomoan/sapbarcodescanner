@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:sapfascanner/model/model.dart';
+import 'package:intl/intl.dart';
+import 'package:sapfascanner/screens/cameraUtils/cameraWidget.dart';
+import 'package:sapfascanner/screens/previewBarcode/previewDetail.dart';
 
 class CustomListItem extends StatelessWidget {
-  const CustomListItem(
-      {this.thumbnail,
-      this.barcodeid,
-      this.desc,
-      this.tqty,
-      this.scanqty,
-      this.latestdate});
+  CustomListItem({
+    this.thumbnail,
+    this.barcode,
+  });
 
   final Widget thumbnail;
-  final String barcodeid;
-  final String desc;
-  final int tqty;
-  final int scanqty;
-  final String latestdate;
+  final SAPFA barcode;
+  final f = new DateFormat('yyyy-MM-dd hh:mm a');
 
   @override
   Widget build(BuildContext context) {
@@ -34,19 +32,25 @@ class CustomListItem extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                AspectRatio(
-                  aspectRatio: 1,
-                  child: thumbnail,
-                ),
+                GestureDetector(
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: thumbnail,
+                    ),
+                    onTap: () => _onPhotoTap(context, barcode)),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(10.0, 5.0, 0.0, 0.0),
-                    child: _BarcodeInfo(
-                        barcodeid: barcodeid,
-                        desc: desc,
-                        tqty: tqty,
-                        scanqty: scanqty,
-                        latestdate: latestdate),
+                    child: GestureDetector(
+                        child: _BarcodeInfo(
+                            barcodeid: barcode.barcodeId,
+                            desc: barcode.desc,
+                            tqty: barcode.qty,
+                            scanqty: barcode.scanqty,
+                            latestdate: f.format(
+                                DateTime.fromMillisecondsSinceEpoch(
+                                    barcode.createdAt * 1000))),
+                        onTap: () => _onItemTap(context, barcode)),
                   ),
                 ),
                 Container(
@@ -59,6 +63,22 @@ class CustomListItem extends StatelessWidget {
             ),
           ),
         ));
+  }
+
+  _onItemTap(BuildContext context, SAPFA barcode) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => PreviewDetail(barcode: barcode)));
+  }
+
+  _onPhotoTap(BuildContext context, SAPFA barcode) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => CameraWidget(
+                  barcode: barcode,
+                )));
   }
 }
 

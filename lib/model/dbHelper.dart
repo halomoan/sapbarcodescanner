@@ -37,6 +37,7 @@ class DBHelper {
               subcode TEXT,              
               desc TEXT,
               loc TEXT,
+              photo TEXT,
               qty INTEGER                      
               )""");
     await db.execute("""

@@ -4,8 +4,13 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
+import 'package:sapfascanner/model/model.dart';
 
 class CameraWidget extends StatefulWidget {
+  final SAPFA barcode;
+
+  const CameraWidget({Key key, this.barcode}) : super(key: key);
+
   @override
   CameraWidgetState createState() => CameraWidgetState();
 }
@@ -75,12 +80,21 @@ class CameraWidgetState extends State<CameraWidget> {
             final path = join(
               // Store the picture in the temp directory.
               // Find the temp directory using the `path_provider` plugin.
-              (await getTemporaryDirectory()).path,
-              '${DateTime.now()}.png',
+              (await getApplicationDocumentsDirectory()).path,
+              '${widget.barcode.barcodeId}.png',
             );
 
-            // Attempt to take a picture and log where it's been saved.
-            await _controller.takePicture(path);
+            File f = new File(path);
+            try {
+              if (await f.exists()) {
+                f.delete();
+                // Attempt to take a picture and log where it's been saved.
+                await _controller.takePicture(path);
+              } else {
+                // Attempt to take a picture and log where it's been saved.
+                await _controller.takePicture(path);
+              }
+            } catch (e) {}
 
             // If the picture was taken, display it on a new screen.
             Navigator.push(
