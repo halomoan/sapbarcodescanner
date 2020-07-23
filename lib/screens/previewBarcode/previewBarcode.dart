@@ -16,7 +16,7 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
 
   SAPFA barcode;
   SCANFA scancode;
-  List<SAPFA> barcodes = [];
+  List<dynamic> barcodes = [];
   final f = new DateFormat('yyyy-MM-dd hh:mm');
 
   @override
@@ -35,20 +35,20 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
             child: Text('Add'),
             onPressed: () {
               barcode = SAPFA(
-                  barcodeId: '200050000001',
+                  barcodeId: '200060000001',
                   coCode: '2000',
-                  mainCode: '5000',
+                  mainCode: '6000',
                   subCode: '0001',
-                  desc: 'Washing Machine',
-                  loc: 'Basement 1',
+                  desc: 'Escalator',
+                  loc: 'Level 1',
                   qty: 5);
               _dbHelper.addSAPFA(barcode);
 
-              scancode = SCANFA(barcodeId: '200050000001', seq: '0001');
+              scancode = SCANFA(barcodeId: '200060000001', seq: '0004');
               _dbHelper.addScanFA(scancode);
-              scancode = SCANFA(barcodeId: '200050000001', seq: '0002');
+              scancode = SCANFA(barcodeId: '200060000001', seq: '0002');
               _dbHelper.addScanFA(scancode);
-              scancode = SCANFA(barcodeId: '200050000001', seq: '0002');
+              scancode = SCANFA(barcodeId: '200060000001', seq: '0002');
               _dbHelper.addScanFA(scancode);
             },
             color: Colors.blue,
@@ -77,36 +77,52 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
             textColor: Colors.white,
           ),
           Expanded(
-            child: ListView.separated(
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                      child: CustomListItem(
-                        desc: barcodes[index].desc,
-                        tqty: barcodes[index].qty,
-                        scanqty: barcodes[index].scanqty,
-                        latestdate: f.format(
-                            DateTime.fromMillisecondsSinceEpoch(
-                                barcodes[index].createdAt * 1000)),
-                        thumbnail: Image.asset(
-                          "assets/images/barcode.png",
-                          fit: BoxFit.fill,
-                        ),
-                        barcodeid:
-                            "${barcodes[index].coCode}-${barcodes[index].mainCode}-${barcodes[index].subCode}",
-                      ),
-                      onTap: () => _onItemTap(
-                          context,
-                          barcodes[index].barcodeId,
-                          barcodes[index].desc,
-                          barcodes[index].qty));
-                },
-                separatorBuilder: (context, index) => Container(
-                    height: 1, width: double.infinity, color: Colors.white),
-                itemCount: barcodes.length),
-          )
+              child: FutureBuilder<List>(
+            future: _getData(),
+            initialData: List(),
+            builder: (context, snapshot) {
+              barcodes = snapshot.data;
+              return snapshot.hasData
+                  ? new ListView.separated(
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                            child: CustomListItem(
+                              desc: barcodes[index].desc,
+                              tqty: barcodes[index].qty,
+                              scanqty: barcodes[index].scanqty,
+                              latestdate: f.format(
+                                  DateTime.fromMillisecondsSinceEpoch(
+                                      barcodes[index].createdAt * 1000)),
+                              thumbnail: Image.asset(
+                                "assets/images/barcode.png",
+                                fit: BoxFit.fill,
+                              ),
+                              barcodeid:
+                                  "${barcodes[index].coCode}-${barcodes[index].mainCode}-${barcodes[index].subCode}",
+                            ),
+                            onTap: () => _onItemTap(
+                                context,
+                                barcodes[index].barcodeId,
+                                barcodes[index].desc,
+                                barcodes[index].qty));
+                      },
+                      separatorBuilder: (context, index) => Container(
+                          height: 1,
+                          width: double.infinity,
+                          color: Colors.white),
+                      itemCount: barcodes.length)
+                  : Center(
+                      child: CircularProgressIndicator(),
+                    );
+            },
+          ))
         ],
       )),
     );
+  }
+
+  Future<List<SAPFA>> _getData() {
+    return _dbHelper.getList();
   }
 
   _onItemTap(BuildContext context, String id, String text, int qty) {

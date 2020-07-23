@@ -51,8 +51,9 @@ class SAPFA {
 class SCANFA {
   String barcodeId = "";
   String seq = "";
+  int createdAt;
 
-  SCANFA({this.barcodeId, this.seq});
+  SCANFA({this.barcodeId, this.seq, this.createdAt});
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{"barcodeid": barcodeId, "seq": seq};
