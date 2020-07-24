@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:sapfascanner/screens/cameraUtils/cameraWidget.dart';
 import 'package:sapfascanner/screens/previewBarcode/previewDetail.dart';
 
+import 'displayPhoto.dart';
+
 class CustomListItem extends StatelessWidget {
   CustomListItem({
     this.thumbnail,
@@ -33,8 +35,8 @@ class CustomListItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 GestureDetector(
-                    child: AspectRatio(
-                      aspectRatio: 1,
+                    child: FittedBox(
+                      fit: BoxFit.fill,
                       child: thumbnail,
                     ),
                     onTap: () => _onPhotoTap(context, barcode)),
@@ -73,12 +75,22 @@ class CustomListItem extends StatelessWidget {
   }
 
   _onPhotoTap(BuildContext context, SAPFA barcode) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => CameraWidget(
-                  barcode: barcode,
-                )));
+    if (barcode.photo == null) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => CameraWidget(
+                    barcode: barcode,
+                  )));
+    } else {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => DisplayPhoto(
+                    barcodeId: barcode.barcodeId,
+                    imagePath: barcode.photo,
+                  )));
+    }
   }
 }
 

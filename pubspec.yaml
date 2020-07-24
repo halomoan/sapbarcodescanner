@@ -26,6 +26,8 @@ dependencies:
   #  flutter_bloc: ^5.0.1
   sqflite:
   camera:
+  photo_view:
+  flutter_speed_dial:
   path_provider:
   path:
 

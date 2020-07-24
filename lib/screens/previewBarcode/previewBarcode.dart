@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:sapfascanner/model/dbHelper.dart';
@@ -84,10 +86,9 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
                       itemBuilder: (context, index) {
                         return CustomListItem(
                           barcode: barcodes[index],
-                          thumbnail: Image.asset(
-                            "assets/images/barcode.png",
-                            fit: BoxFit.fill,
-                          ),
+                          thumbnail: barcodes[index].photo == null
+                              ? Image.asset("assets/images/barcode.png")
+                              : Image.file(File(barcodes[index].photo)),
                         );
                       },
                       separatorBuilder: (context, index) => Container(

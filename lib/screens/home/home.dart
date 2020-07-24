@@ -9,20 +9,16 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('SAP Fixed Asset Scanner'), actions: [
+      appBar: AppBar(title: Text('SAP Fixed Assxet Scanner'), actions: [
         IconButton(
           icon: Icon(Ionicons.ios_settings),
           onPressed: () {},
         ),
       ]),
-      body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            //SizedBox(height: 10),
-            MenuList(),
-            ImageBanner("assets/images/pphg.png"),
-          ]),
+      body: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+        MenuList(),
+        ImageBanner("assets/images/pphg.png"),
+      ]),
     );
   }
 }

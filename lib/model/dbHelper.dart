@@ -95,7 +95,7 @@ class DBHelper {
   Future<List<SAPFA>> getList() async {
     final db = await init();
     final maps = await db.rawQuery(
-        'select sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc, sapfa.qty, count(scanfa.seq) as scanqty, max(createdat) as createdat from sapfa left join scanfa using(barcodeid) group by sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc, sapfa.qty');
+        'select sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc,sapfa.photo,sapfa.qty, count(scanfa.seq) as scanqty, max(createdat) as createdat from sapfa left join scanfa using(barcodeid) group by sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc, sapfa.qty');
 
     return List.generate(maps.length, (i) {
       //create a list of memos
@@ -106,6 +106,7 @@ class DBHelper {
           subCode: maps[i]['subcode'],
           desc: maps[i]['desc'],
           loc: maps[i]['loc'],
+          photo: maps[i]['photo'],
           qty: maps[i]['qty'],
           scanqty: maps[i]['scanqty'],
           createdAt: maps[i]['createdat']);
@@ -169,7 +170,24 @@ class DBHelper {
   //   });
   // }
 
-  Future<int> delSAPFA(int id) async {
+  Future<int> updatePhoto(String id, String photo) async {
+    //returns number of items deleted
+    final db = await init();
+
+    Map<String, dynamic> row = {
+      "photo": photo,
+    };
+
+    // do the update and get the number of affected rows
+    int updateCount = await db.update("sapfa", row,
+        where: "barcodeid = ?",
+        whereArgs: [id]); // use whereArgs to avoid SQL injection);
+
+    print(id);
+    return updateCount;
+  }
+
+  Future<int> delSAPFA(String id) async {
     //returns number of items deleted
     final db = await init();
 
