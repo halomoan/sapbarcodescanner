@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:sapfascanner/model/dbHelper.dart';
@@ -16,7 +15,7 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
 
   SAPFA barcode;
   SCANFA scancode;
-  List<dynamic> barcodes = [];
+  //List<SAPFA> barcodes = [];
 
   @override
   void initState() {
@@ -34,20 +33,20 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
             child: Text('Add'),
             onPressed: () {
               barcode = SAPFA(
-                  barcodeId: '20007000001001',
+                  barcodeId: '20002000001001',
                   coCode: '2000',
-                  mainCode: '700000',
+                  mainCode: '200000',
                   subCode: '1001',
-                  desc: 'Escalator',
-                  loc: 'Level 1',
-                  qty: 15);
+                  desc: 'Machine A',
+                  loc: 'Level 2',
+                  qty: 300);
               _dbHelper.addSAPFA(barcode);
 
-              scancode = SCANFA(barcodeId: '20007000001001', seq: '0014');
+              scancode = SCANFA(barcodeId: '20002000001001', seq: '0001');
               _dbHelper.addScanFA(scancode);
-              scancode = SCANFA(barcodeId: '20007000001001', seq: '0012');
+              scancode = SCANFA(barcodeId: '20002000001001', seq: '0002');
               _dbHelper.addScanFA(scancode);
-              scancode = SCANFA(barcodeId: '20007000001001', seq: '0002');
+              scancode = SCANFA(barcodeId: '20002000001001', seq: '0007');
               _dbHelper.addScanFA(scancode);
             },
             color: Colors.blue,
@@ -61,7 +60,7 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
               print(_list.length);
 
               setState(() {
-                barcodes = _list;
+                //barcodes = _list;
               });
             },
             color: Colors.red,
@@ -71,6 +70,9 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
             child: Text('Reset'),
             onPressed: () async {
               await _dbHelper.reset();
+              setState(() {
+                //barcodes = _list;
+              });
             },
             color: Colors.red,
             textColor: Colors.white,
@@ -80,22 +82,21 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
             future: _getData(),
             initialData: List(),
             builder: (context, snapshot) {
-              barcodes = snapshot.data;
               return snapshot.hasData
                   ? new ListView.separated(
                       itemBuilder: (context, index) {
                         return CustomListItem(
-                          barcode: barcodes[index],
-                          thumbnail: barcodes[index].photo == null
+                          barcode: snapshot.data[index],
+                          thumbnail: snapshot.data[index].photo == null
                               ? Image.asset("assets/images/barcode.png")
-                              : Image.file(File(barcodes[index].photo)),
+                              : Image.file(File(snapshot.data[index].photo)),
                         );
                       },
                       separatorBuilder: (context, index) => Container(
                           height: 1,
                           width: double.infinity,
                           color: Colors.white),
-                      itemCount: barcodes.length)
+                      itemCount: snapshot.data.length)
                   : Center(
                       child: CircularProgressIndicator(),
                     );

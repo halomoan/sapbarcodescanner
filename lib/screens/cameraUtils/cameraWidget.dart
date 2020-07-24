@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:sapfascanner/model/model.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:sapfascanner/model/dbHelper.dart';
+import 'package:sapfascanner/screens/previewBarcode/displayPhoto.dart';
 
 class CameraWidget extends StatefulWidget {
   final SAPFA barcode;
@@ -56,7 +55,6 @@ class CameraWidgetState extends State<CameraWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Take a picture')),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
@@ -99,55 +97,19 @@ class CameraWidgetState extends State<CameraWidget> {
             } catch (e) {}
 
             // If the picture was taken, display it on a new screen.
-            Navigator.push(
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => DisplayPictureScreen(
-                    barcodeId: widget.barcode.barcodeId, imagePath: path),
+                builder: (context) =>
+                    DisplayPhoto(barcode: widget.barcode, imagePath: path),
               ),
+              ModalRoute.withName('/'),
             );
           } catch (e) {
             // If an error occurs, log the error to the console.
             print(e);
           }
         },
-      ),
-    );
-  }
-}
-
-// A widget that displays the picture taken by the user.
-class DisplayPictureScreen extends StatelessWidget {
-  final DBHelper _dbHelper = DBHelper();
-  final String imagePath;
-  final String barcodeId;
-
-  DisplayPictureScreen({Key key, this.barcodeId, this.imagePath})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Preview Picture')),
-      // The image is stored as a file on the device. Use the `Image.file`
-      // constructor with the given path to display the image.
-      body: Container(
-          child: PhotoView(
-        imageProvider: FileImage(File(imagePath)),
-      )),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final newpath = join(
-            (await getApplicationDocumentsDirectory()).path,
-            '${this.barcodeId}.png',
-          );
-
-          await File(imagePath).rename(newpath);
-
-          await _dbHelper.updatePhoto(this.barcodeId, newpath);
-        },
-        icon: Icon(Icons.save),
-        label: Text("Save"),
       ),
     );
   }

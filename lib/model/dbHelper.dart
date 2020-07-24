@@ -179,12 +179,27 @@ class DBHelper {
     };
 
     // do the update and get the number of affected rows
-    int updateCount = await db.update("sapfa", row,
+    int noofrec = await db.update("sapfa", row,
         where: "barcodeid = ?",
         whereArgs: [id]); // use whereArgs to avoid SQL injection);
 
-    print(id);
-    return updateCount;
+    return noofrec;
+  }
+
+  Future<int> updateInfo(String id, String desc) async {
+    //returns number of items deleted
+    final db = await init();
+
+    Map<String, dynamic> row = {
+      "desc": desc,
+    };
+
+    // do the update and get the number of affected rows
+    int noofrec = await db.update("sapfa", row,
+        where: "barcodeid = ?",
+        whereArgs: [id]); // use whereArgs to avoid SQL injection);
+
+    return noofrec;
   }
 
   Future<int> delSAPFA(String id) async {

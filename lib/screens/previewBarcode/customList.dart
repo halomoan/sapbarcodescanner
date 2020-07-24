@@ -35,10 +35,12 @@ class CustomListItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 GestureDetector(
-                    child: FittedBox(
-                      fit: BoxFit.fill,
-                      child: thumbnail,
-                    ),
+                    child: SizedBox(
+                        width: 90,
+                        child: FittedBox(
+                          fit: BoxFit.fill,
+                          child: thumbnail,
+                        )),
                     onTap: () => _onPhotoTap(context, barcode)),
                 Expanded(
                   child: Padding(
@@ -87,7 +89,7 @@ class CustomListItem extends StatelessWidget {
           context,
           MaterialPageRoute(
               builder: (context) => DisplayPhoto(
-                    barcodeId: barcode.barcodeId,
+                    barcode: barcode,
                     imagePath: barcode.photo,
                   )));
     }
