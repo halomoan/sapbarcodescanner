@@ -7,16 +7,16 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:sapfascanner/screens/previewBarcode/displayPhoto.dart';
 
-class CameraWidget extends StatefulWidget {
+class Camera extends StatefulWidget {
   final SAPFA barcode;
 
-  const CameraWidget({Key key, this.barcode}) : super(key: key);
+  const Camera({Key key, this.barcode}) : super(key: key);
 
   @override
-  CameraWidgetState createState() => CameraWidgetState();
+  CameraState createState() => CameraState();
 }
 
-class CameraWidgetState extends State<CameraWidget> {
+class CameraState extends State<Camera> {
   List<CameraDescription> cameras;
   CameraController _controller;
   bool isReady = false;

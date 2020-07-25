@@ -35,10 +35,12 @@ class CameraButton extends StatelessWidget {
         fontSize: 16.0);
   }
 
-  bool _validateCode(String barcode) {}
+  bool _validateCode(String barcode) {
+    return false;
+  }
 
   void _saveCode(String barcode) {
-    barcode = SAPFA(
+    var itemFA = SAPFA(
         barcodeId: '20002000001001',
         coCode: '2000',
         mainCode: '200000',
@@ -46,9 +48,9 @@ class CameraButton extends StatelessWidget {
         desc: 'Machine A',
         loc: 'Level 2',
         qty: 300);
-    _dbHelper.addSAPFA(barcode);
+    _dbHelper.addSAPFA(itemFA);
 
-    scancode = SCANFA(barcodeId: '20002000001001', seq: '0001');
-    _dbHelper.addScanFA(scancode);
+    var itemScan = SCANFA(barcodeId: '20002000001001', seq: '0001');
+    _dbHelper.addScanFA(itemScan);
   }
 }

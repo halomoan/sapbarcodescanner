@@ -12,7 +12,9 @@ class Home extends StatelessWidget {
       appBar: AppBar(title: Text('SAP Fixed Assxet Scanner'), actions: [
         IconButton(
           icon: Icon(Ionicons.ios_settings),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pushNamed(context, "/settings");
+          },
         ),
       ]),
       body: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [

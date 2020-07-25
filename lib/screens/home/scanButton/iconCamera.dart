@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import '../../../utils/HexColor.dart';
-import 'package:sapfascanner/model/dbHelper.dart';
-import 'package:sapfascanner/model/model.dart';
 
 class IconCamera extends StatelessWidget {
   @override

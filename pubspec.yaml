@@ -27,7 +27,7 @@ dependencies:
   sqflite:
   camera:
   photo_view:
-  flutter_speed_dial:
+  shared_preferences:
   path_provider:
   path:
 

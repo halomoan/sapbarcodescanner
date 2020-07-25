@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'screens/home/home.dart';
 import 'screens/previewBarcode/previewBarcode.dart';
 import 'screens/previewBarcode/previewDetail.dart';
-import 'cameraUtils/cameraWidget.dart';
+import 'screens/settings/settings.dart';
+import 'camera/camera.dart';
 
 Future<Null> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +28,8 @@ class MyApp extends StatelessWidget {
         '/': (context) => Home(),
         '/display': (context) => PreviewBarcode(),
         '/detail': (context) => PreviewDetail(),
-        '/camera': (context) => CameraWidget()
+        '/settings': (context) => Settings(),
+        '/camera': (context) => Camera()
       },
     );
   }

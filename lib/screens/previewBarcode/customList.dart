@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:intl/intl.dart';
-import 'package:sapfascanner/cameraUtils/cameraWidget.dart';
+import 'package:sapfascanner/camera/camera.dart';
 import 'package:sapfascanner/screens/previewBarcode/previewDetail.dart';
 
 import 'displayPhoto.dart';
@@ -81,7 +81,7 @@ class CustomListItem extends StatelessWidget {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => CameraWidget(
+              builder: (context) => Camera(
                     barcode: barcode,
                   )));
     } else {
