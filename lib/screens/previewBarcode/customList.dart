@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:intl/intl.dart';
-import 'package:sapfascanner/screens/cameraUtils/cameraWidget.dart';
+import 'package:sapfascanner/cameraUtils/cameraWidget.dart';
 import 'package:sapfascanner/screens/previewBarcode/previewDetail.dart';
 
 import 'displayPhoto.dart';

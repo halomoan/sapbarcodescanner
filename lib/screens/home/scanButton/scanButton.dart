@@ -1,9 +1,13 @@
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
-import './iconCamera.dart';
+import 'package:sapfascanner/model/dbHelper.dart';
+import 'package:sapfascanner/model/model.dart';
+import 'iconCamera.dart';
 
 class CameraButton extends StatelessWidget {
+  final DBHelper _dbHelper = DBHelper();
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -29,5 +33,22 @@ class CameraButton extends StatelessWidget {
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16.0);
+  }
+
+  bool _validateCode(String barcode) {}
+
+  void _saveCode(String barcode) {
+    barcode = SAPFA(
+        barcodeId: '20002000001001',
+        coCode: '2000',
+        mainCode: '200000',
+        subCode: '1001',
+        desc: 'Machine A',
+        loc: 'Level 2',
+        qty: 300);
+    _dbHelper.addSAPFA(barcode);
+
+    scancode = SCANFA(barcodeId: '20002000001001', seq: '0001');
+    _dbHelper.addScanFA(scancode);
   }
 }

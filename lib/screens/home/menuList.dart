@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'cameraButton/cameraButton.dart';
+import 'scanButton/scanButton.dart';
 import 'readerButton/readerButton.dart';
 import 'camPhotoButton/camPhotoButton.dart';
 import 'previewButton/previewButton.dart';

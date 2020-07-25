@@ -15,7 +15,6 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
 
   SAPFA barcode;
   SCANFA scancode;
-  //List<SAPFA> barcodes = [];
 
   @override
   void initState() {
