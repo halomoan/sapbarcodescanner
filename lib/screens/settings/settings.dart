@@ -146,7 +146,8 @@ class _SettingsState extends State<Settings> {
   }
 
   Future<bool> _checkRegistration() {
-    //return Future.value(false);
+    // var result = await http.get('https://getProjectList');
+    // return result;
     return Future.delayed(Duration(milliseconds: 2000))
         .then((onValue) => false);
   }

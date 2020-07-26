@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:intl/intl.dart';
 import 'package:sapfascanner/camera/camera.dart';
-import 'package:sapfascanner/screens/previewBarcode/previewDetail.dart';
+import 'package:sapfascanner/screens/previewDetail/previewDetail.dart';
 
-import 'displayPhoto.dart';
+import '../displayPhoto/displayPhoto.dart';
 
 class CustomListItem extends StatelessWidget {
   CustomListItem({

@@ -28,6 +28,7 @@ dependencies:
   camera:
   photo_view:
   shared_preferences:
+  device_info:
   path_provider:
   path:
 
