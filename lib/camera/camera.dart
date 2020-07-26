@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:sapfascanner/model/model.dart';
-import 'package:sapfascanner/screens/previewBarcode/displayPhoto.dart';
+import 'package:sapfascanner/screens/displayPhoto/displayPhoto.dart';
 
 class Camera extends StatefulWidget {
   final SAPFA barcode;
