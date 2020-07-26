@@ -2,13 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'screens/home/home.dart';
 import 'screens/previewBarcode/previewBarcode.dart';
-import 'screens/previewBarcode/previewDetail.dart';
+import 'screens/previewDetail/previewDetail.dart';
 import 'screens/settings/settings.dart';
+import 'utils/PreferenceUtils.dart';
 import 'camera/camera.dart';
 
 Future<Null> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  PreferenceUtils.init();
   runApp(MyApp());
 }
 

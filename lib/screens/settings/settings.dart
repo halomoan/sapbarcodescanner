@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/PreferenceUtils.dart';
 
 class Settings extends StatefulWidget {
   Settings({Key key}) : super(key: key);
@@ -17,6 +18,7 @@ class _SettingsState extends State<Settings> {
 
   Widget _buildConfigServer() {
     return TextFormField(
+      initialValue: PreferenceUtils.uniqueID,
       decoration: InputDecoration(
         labelText: 'Server',
         hintText: 'Enter The Server Address',
