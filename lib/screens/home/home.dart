@@ -17,7 +17,7 @@ class Home extends StatelessWidget {
           },
         ),
       ]),
-      body: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      body: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
         MenuList(),
         ImageBanner("assets/images/pphg.png"),
       ]),

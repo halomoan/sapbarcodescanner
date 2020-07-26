@@ -46,6 +46,7 @@ class PreferenceUtils {
     return identifier;
   }
 
+  // Configuration Server
   static get configServer {
     return _prefs.getString('configServer') ?? '';
   }
@@ -54,7 +55,82 @@ class PreferenceUtils {
     _prefs.setString('configServer', value);
   }
 
+  static get configUserID {
+    return _prefs.getString('configUserID') ?? '';
+  }
+
+  static set configUserID(String value) {
+    _prefs.setString('configUserID', value);
+  }
+
+  static get configPasswd {
+    return _prefs.getString('configPasswd') ?? '';
+  }
+
+  static set configPasswd(String value) {
+    _prefs.setString('configPasswd', value);
+  }
+
+  // Update Server
+  static get updServer {
+    return _prefs.getString('updServer') ?? '';
+  }
+
+  static set updServer(String value) {
+    _prefs.setString('updServer', value);
+  }
+
+  static get updUserID {
+    return _prefs.getString('updUserID') ?? '';
+  }
+
+  static set updUserID(String value) {
+    _prefs.setString('updUserID', value);
+  }
+
+  static get updPasswd {
+    return _prefs.getString('updPasswd') ?? '';
+  }
+
+  static set updPasswd(String value) {
+    _prefs.setString('updPasswd', value);
+  }
+
+  // Unique ID
   static get uniqueID {
     return _prefs.getString('uniqueID') ?? '';
+  }
+
+  // Barcode Format
+  static get coCodeLen {
+    return _prefs.getInt('coCodeLen') ?? 0;
+  }
+
+  static set coCodeLen(int value) {
+    _prefs.setInt('coCodeLen', value);
+  }
+
+  static get mainCodeLen {
+    return _prefs.getInt('mainCodeLen') ?? 0;
+  }
+
+  static set mainCodeLen(int value) {
+    _prefs.setInt('mainCodeLen', value);
+  }
+
+  static get subCodeLen {
+    return _prefs.getInt('subCodeLen') ?? 0;
+  }
+
+  static set subCodeLen(int value) {
+    _prefs.setInt('subCodeLen', value);
+  }
+
+  static get counterLen {
+    return _prefs.getInt('counterLen') ?? 0;
+  }
+
+  static set counterLen(int value) {
+    _prefs.setInt('counterLen', value);
   }
 }

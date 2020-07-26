@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sapfascanner/screens/showUniqueID/showUniqueID.dart';
 import '../../utils/PreferenceUtils.dart';
 
 class Settings extends StatefulWidget {
@@ -9,16 +10,14 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  String _configServer = "";
-  String _configUserID = "";
-  String _configPasswd = "";
   bool _showConfigPasswd = false;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Widget _buildConfigServer() {
     return TextFormField(
-      initialValue: PreferenceUtils.uniqueID,
+      keyboardType: TextInputType.url,
+      initialValue: PreferenceUtils.configServer,
       decoration: InputDecoration(
         labelText: 'Server',
         hintText: 'Enter The Server Address',
@@ -31,13 +30,14 @@ class _SettingsState extends State<Settings> {
         return null;
       },
       onSaved: (String value) {
-        this._configServer = value;
+        PreferenceUtils.configServer = value;
       },
     );
   }
 
   Widget _buildConfigUserID() {
     return TextFormField(
+      initialValue: PreferenceUtils.configUserID,
       decoration: InputDecoration(
         labelText: 'User ID',
         hintText: 'Enter The Server UserID',
@@ -50,13 +50,14 @@ class _SettingsState extends State<Settings> {
         return null;
       },
       onSaved: (String value) {
-        this._configUserID = value;
+        PreferenceUtils.configUserID = value;
       },
     );
   }
 
   Widget _buildConfigPasswd() {
     return TextFormField(
+      initialValue: PreferenceUtils.configPasswd,
       obscureText: !_showConfigPasswd,
       decoration: InputDecoration(
         labelText: 'Password',
@@ -81,7 +82,7 @@ class _SettingsState extends State<Settings> {
         return null;
       },
       onSaved: (String value) {
-        this._configPasswd = value;
+        PreferenceUtils.configPasswd = value;
       },
     );
   }
@@ -99,7 +100,13 @@ class _SettingsState extends State<Settings> {
                     child: Column(
                       children: <Widget>[
                         RaisedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ShowUniqueID()),
+                            );
+                          },
                           child: Text(
                             "Register This Phone",
                             style: TextStyle(color: Colors.red, fontSize: 16),
@@ -121,23 +128,15 @@ class _SettingsState extends State<Settings> {
                     onPressed: () {
                       if (_formKey.currentState.validate()) {
                         _formKey.currentState.save();
-                        print(_configServer);
                       } else {
                         print("Empty");
                       }
                     },
                     child: Text(
-                      "Save",
+                      "Connect",
                       style: TextStyle(color: Colors.blue, fontSize: 16),
                     ),
                   ),
-                  RaisedButton(
-                    onPressed: () {},
-                    child: Text(
-                      "Connect",
-                      style: TextStyle(color: Colors.green, fontSize: 16),
-                    ),
-                  )
                 ],
               )
             : Center(

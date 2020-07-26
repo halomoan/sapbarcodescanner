@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:sapfascanner/screens/externalReader/externalReader.dart';
 import 'screens/home/home.dart';
 import 'screens/previewBarcode/previewBarcode.dart';
 import 'screens/previewDetail/previewDetail.dart';
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => Home(),
         '/display': (context) => PreviewBarcode(),
         '/detail': (context) => PreviewDetail(),
+        '/external': (context) => ExternalReader(),
         '/settings': (context) => Settings(),
         '/camera': (context) => Camera()
       },

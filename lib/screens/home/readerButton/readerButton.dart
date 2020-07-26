@@ -9,6 +9,6 @@ class ReaderButton extends StatelessWidget {
   }
 
   void _onReaderTap(BuildContext context) {
-    Navigator.pushNamed(context, '/display');
+    Navigator.pushNamed(context, '/external');
   }
 }

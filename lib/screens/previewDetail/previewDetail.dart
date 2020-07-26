@@ -62,6 +62,6 @@ class PreviewDetailState extends State<PreviewDetail> {
   }
 
   Future<List<SCANFA>> _getData(SAPFA barcode) {
-    return _dbHelper.getItems(barcode.barcodeId, barcode.qty);
+    return _dbHelper.getScannedFA(barcode.barcodeId, barcode.qty);
   }
 }

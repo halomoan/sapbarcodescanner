@@ -37,7 +37,8 @@ class DBHelper {
               subcode TEXT,              
               desc TEXT,
               loc TEXT,
-              photo TEXT,
+              acqdate TEXT,
+              photo TEXT,              
               qty INTEGER                      
               )""");
     await db.execute("""
@@ -71,12 +72,13 @@ class DBHelper {
     );
   }
 
-  Future<List<SAPFA>> getSAPFA() async {
+  Future<List<SAPFA>> getSAPFA(String id) async {
     //returns the barcodes as a list (array)
 
     final db = await init();
-    final maps = await db
-        .query("sapfa"); //query all the rows in a table as an array of maps
+    final maps = await db.query("sapfa",
+        where: "barcodeid = ?",
+        whereArgs: [id]); //query all the rows in a table as an array of maps
 
     return List.generate(maps.length, (i) {
       //create a list of memos
@@ -87,8 +89,9 @@ class DBHelper {
           subCode: maps[i]['subcode'],
           desc: maps[i]['desc'],
           loc: maps[i]['loc'],
-          qty: maps[i]['qty'],
-          scanqty: maps[i]['scanqty']);
+          acqdate: maps[i]['acqdate'],
+          photo: maps[i]['photo'],
+          qty: maps[i]['qty']);
     });
   }
 
@@ -113,7 +116,7 @@ class DBHelper {
     });
   }
 
-  Future<List<SCANFA>> getItems(String id, int qty) async {
+  Future<List<SCANFA>> getScannedFA(String id, int qty) async {
     final db = await init();
     final maps = await db
         .rawQuery('select * from scanfa where barcodeid = $id order by seq');

@@ -5,6 +5,7 @@ class SAPFA {
   String subCode = "";
   String desc = "";
   String loc = "";
+  String acqdate = "";
   String photo;
   int qty = 0;
   int scanqty = 0;
@@ -17,6 +18,7 @@ class SAPFA {
       this.subCode,
       this.desc,
       this.loc,
+      this.acqdate,
       this.photo,
       this.qty,
       this.scanqty,
@@ -30,6 +32,7 @@ class SAPFA {
       "subcode": subCode,
       "desc": desc,
       "loc": loc,
+      "acqdate": acqdate,
       "photo": photo,
       "qty": qty
     };
@@ -42,6 +45,7 @@ class SAPFA {
     subCode = map['subcode'];
     desc = map['desc'];
     loc = map['loc'];
+    acqdate = map['acqdate'];
     photo = map['photo'];
     qty = map['qty'];
     scanqty = map['scanqty'];
