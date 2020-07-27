@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:sapfascanner/model/dbHelper.dart';
 import 'package:sapfascanner/model/model.dart';
 
@@ -15,7 +16,9 @@ class _ExternalReaderState extends State<ExternalReader> {
   final DBHelper _dbHelper = DBHelper();
   TextEditingController scanController = TextEditingController();
   FocusNode myFocusNode;
-  String _barcodeId = "20002000001001";
+  StreamController<SAPFA> _refreshController;
+  String _scanText;
+  String _counter;
 
   @override
   void initState() {
@@ -23,7 +26,16 @@ class _ExternalReaderState extends State<ExternalReader> {
 
     scanController.addListener(() {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
+      FocusScope.of(context).requestFocus(myFocusNode);
+
+      _scanText = scanController.text;
+      if (_scanText.length == 18) {
+        _handleRefresh(_scanText.substring(0, 14), _scanText.substring(15, 18));
+      }
     });
+
+    _refreshController = new StreamController<SAPFA>();
+
     myFocusNode = FocusNode();
   }
 
@@ -37,25 +49,19 @@ class _ExternalReaderState extends State<ExternalReader> {
     return TextField(
       focusNode: myFocusNode,
       autofocus: true,
-      cursorColor: Colors.redAccent,
+      showCursor: false,
       enabled: true,
       controller: scanController,
-      onChanged: (code) {
-        scanController.text = '';
-        FocusScope.of(context).requestFocus(myFocusNode);
-      },
       onTap: () {
         SystemChannels.textInput.invokeMethod('TextInput.hide');
       },
       onEditingComplete: () {
         SystemChannels.textInput.invokeMethod('TextInput.hide');
       },
-      style: TextStyle(color: Colors.white, fontSize: 40),
+      style: TextStyle(fontSize: 10),
       textAlign: TextAlign.center,
       decoration: InputDecoration(
         fillColor: Colors.white,
-        // focusedBorder: OutlineInputBorder(
-        //     borderSide: BorderSide(color: Colors.white, width: 2.0)),
         isDense: true,
         contentPadding: EdgeInsets.all(10),
       ),
@@ -69,6 +75,14 @@ class _ExternalReaderState extends State<ExternalReader> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text(
+                "${barcode.coCode} - ${barcode.mainCode} - ${barcode.subCode}",
+                style: TextStyle(fontSize: 25),
+              ),
+              Text(
+                "Counter: ${_counter}",
+                style: TextStyle(fontSize: 25),
+              ),
+              Text(
                 barcode.desc,
                 style: TextStyle(fontSize: 35),
               ),
@@ -77,14 +91,14 @@ class _ExternalReaderState extends State<ExternalReader> {
                 style: TextStyle(fontSize: 35),
               ),
               Text(
-                'Purchased On: 25-Jan-2020',
+                'Purchased On: ${barcode.acqdate}',
                 style: TextStyle(fontSize: 20),
               ),
               SizedBox(
                 height: 20,
               ),
               Text(
-                'Quantity: 1000',
+                'Quantity: ${barcode.qty}',
                 style: TextStyle(fontSize: 35),
               ),
             ]));
@@ -100,21 +114,28 @@ class _ExternalReaderState extends State<ExternalReader> {
               _scanBarcode(context),
               Container(
                 width: double.infinity,
-                height: 80,
+                height: 40,
                 color: Colors.white.withOpacity(0.1),
               ),
             ]),
             Text('Scanned Output'),
+            RaisedButton(
+                onPressed: () {
+                  scanController.text = '200010000010010001';
+                },
+                child: Text('Testing')),
+            RaisedButton(
+                onPressed: () {
+                  setState(() {
+                    scanController.text = '200010000010020002';
+                  });
+                },
+                child: Text('Testing')),
             SizedBox(
               height: 10,
             ),
-            Text(
-              '2000-200000-1001',
-              style: TextStyle(fontSize: 40),
-            ),
-            FutureBuilder(
-              future: _getInfo(_barcodeId),
-              initialData: null,
+            StreamBuilder(
+              stream: _refreshController.stream,
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 return snapshot.hasData
                     ? _barcodeInfo(snapshot.data)
@@ -127,10 +148,14 @@ class _ExternalReaderState extends State<ExternalReader> {
         ));
   }
 
-  Future<SAPFA> _getInfo(String id) async {
+  void _handleRefresh(String id, String counter) async {
+    print(id);
+    print(counter);
     List<SAPFA> barcode = await _dbHelper.getSAPFA(id);
-    //return Future.value(barcode.first);
-    return Future.delayed(Duration(milliseconds: 2000))
-        .then((onValue) => barcode.first);
+    if (barcode.length > 0) {
+      _counter = counter;
+      _refreshController.add(barcode.first);
+      scanController.text = '';
+    }
   }
 }

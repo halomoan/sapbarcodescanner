@@ -32,20 +32,20 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
             child: Text('Add'),
             onPressed: () {
               barcode = SAPFA(
-                  barcodeId: '20002000001001',
+                  barcodeId: '20001000001002',
                   coCode: '2000',
-                  mainCode: '200000',
-                  subCode: '1001',
-                  desc: 'Machine A',
-                  loc: 'Level 2',
+                  mainCode: '100000',
+                  subCode: '1002',
+                  desc: 'Machine B',
+                  loc: 'Level 1',
                   qty: 300);
               _dbHelper.addSAPFA(barcode);
 
-              scancode = SCANFA(barcodeId: '20002000001001', seq: '0001');
+              scancode = SCANFA(barcodeId: '20001000001002', seq: '0001');
               _dbHelper.addScanFA(scancode);
-              scancode = SCANFA(barcodeId: '20002000001001', seq: '0002');
+              scancode = SCANFA(barcodeId: '20001000001002', seq: '0002');
               _dbHelper.addScanFA(scancode);
-              scancode = SCANFA(barcodeId: '20002000001001', seq: '0007');
+              scancode = SCANFA(barcodeId: '20001000001002', seq: '0007');
               _dbHelper.addScanFA(scancode);
             },
             color: Colors.blue,

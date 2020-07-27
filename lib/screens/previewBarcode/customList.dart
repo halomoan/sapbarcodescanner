@@ -21,7 +21,7 @@ class CustomListItem extends StatelessWidget {
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 1.0),
         child: SizedBox(
-          height: 100,
+          height: 90,
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
