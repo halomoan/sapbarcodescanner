@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sapfascanner/model/dbHelper.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:sapfascanner/utils/barcodeUtils.dart';
+
+import 'noKeyboardEditableText.dart';
 
 class ExternalReader extends StatefulWidget {
   ExternalReader({Key key}) : super(key: key);
@@ -27,12 +28,38 @@ class _ExternalReaderState extends State<ExternalReader> {
     super.initState();
 
     scanController.addListener(() {
-      SystemChannels.textInput.invokeMethod('TextInput.hide');
-      FocusScope.of(context).requestFocus(myFocusNode);
+      //FocusScope.of(context).requestFocus(myFocusNode);
+      //SystemChannels.textInput.invokeMethod('TextInput.hide');
+      //FocusScope.of(context).requestFocus(new FocusNode());
 
-      if (scanController.text.length == _barcodeUtils.validLength) {
+      if (_barcodeUtils.validLength < 1) {
+        Fluttertoast.showToast(
+            msg: 'Invalid Barcode. Please Register This Phone To Get Update.',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        scanController.text = '';
+        _refreshController.add(null);
+        //FocusScope.of(context).requestFocus(new FocusNode());
+      } else if (scanController.text.length == _barcodeUtils.validLength) {
         _handleRefresh(scanController.text);
-      } else {}
+      } else {
+        print(scanController.text);
+        Fluttertoast.showToast(
+            msg: 'Invalid Barcode.',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        scanController.text = '';
+        _refreshController.add(null);
+        //FocusScope.of(context).requestFocus(new FocusNode());
+      }
     });
 
     _refreshController = new StreamController<SAPFA>();
@@ -47,26 +74,7 @@ class _ExternalReaderState extends State<ExternalReader> {
   }
 
   Widget _scanBarcode(BuildContext contex) {
-    return TextField(
-      focusNode: myFocusNode,
-      autofocus: true,
-      showCursor: false,
-      enabled: true,
-      controller: scanController,
-      onTap: () {
-        SystemChannels.textInput.invokeMethod('TextInput.hide');
-      },
-      onEditingComplete: () {
-        SystemChannels.textInput.invokeMethod('TextInput.hide');
-      },
-      style: TextStyle(fontSize: 10),
-      textAlign: TextAlign.center,
-      decoration: InputDecoration(
-        fillColor: Colors.white,
-        isDense: true,
-        contentPadding: EdgeInsets.all(10),
-      ),
-    );
+    return NoKeyboardEditableText(controller: scanController);
   }
 
   Widget _barcodeInfo(SAPFA barcode) {
@@ -85,11 +93,11 @@ class _ExternalReaderState extends State<ExternalReader> {
               ),
               Text(
                 barcode.desc,
-                style: TextStyle(fontSize: 35),
+                style: TextStyle(fontSize: 20),
               ),
               Text(
                 barcode.loc,
-                style: TextStyle(fontSize: 35),
+                style: TextStyle(fontSize: 20),
               ),
               Text(
                 'Purchased On: ${barcode.acqdate}',
@@ -100,7 +108,7 @@ class _ExternalReaderState extends State<ExternalReader> {
               ),
               Text(
                 'Quantity: ${barcode.qty}',
-                style: TextStyle(fontSize: 35),
+                style: TextStyle(fontSize: 20),
               ),
             ]));
   }
@@ -116,18 +124,18 @@ class _ExternalReaderState extends State<ExternalReader> {
               Container(
                 width: double.infinity,
                 height: 40,
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white,
               ),
             ]),
             Text('Scanned Output'),
             RaisedButton(
                 onPressed: () {
-                  scanController.text = '200010000010010001';
+                  scanController.text = '200030000010010001';
                 },
                 child: Text('Testing1')),
             RaisedButton(
                 onPressed: () {
-                  scanController.text = '200010000010020002';
+                  scanController.text = '200030000010004';
                 },
                 child: Text('Testing2')),
             SizedBox(
@@ -138,9 +146,10 @@ class _ExternalReaderState extends State<ExternalReader> {
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 return snapshot.hasData
                     ? _barcodeInfo(snapshot.data)
-                    : Center(
-                        child: CircularProgressIndicator(),
-                      );
+                    // : Center(
+                    //     child: CircularProgressIndicator(),
+                    //   );
+                    : Container();
               },
             ),
           ],
@@ -148,29 +157,30 @@ class _ExternalReaderState extends State<ExternalReader> {
   }
 
   void _handleRefresh(String code) async {
-    print("The Code: " + code);
-    _barcodeUtils = BarcodeUtils.code(code);
+    _barcodeUtils.code = code;
 
     if (_barcodeUtils.isValid) {
       List<SAPFA> barcode = await _dbHelper.getSAPFA(_barcodeUtils.barcodeId);
       if (barcode.length > 0) {
         _counter = _barcodeUtils.counter;
         _refreshController.add(barcode.first);
-        scanController.text = '';
       } else {
         SAPFA _barcode = _barcodeUtils.sapFA;
+        _dbHelper.addSAPFA(_barcode);
+        SCANFA _scancode = _barcodeUtils.scanFA;
+        _dbHelper.addScanFA(_scancode);
         _refreshController.add(_barcode);
       }
     } else {
-      print(_barcodeUtils.barcodeId);
       Fluttertoast.showToast(
-          msg: 'Invalid Barcode. Please Register This Phone To Get Update.',
+          msg: 'Invalid Barcode.',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
           backgroundColor: Colors.red,
           textColor: Colors.white,
           fontSize: 16.0);
+      scanController.text = '';
     }
   }
 }

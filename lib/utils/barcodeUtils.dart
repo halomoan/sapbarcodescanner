@@ -2,7 +2,7 @@ import 'package:sapfascanner/model/model.dart';
 import 'PreferenceUtils.dart';
 
 class BarcodeUtils {
-  static int _validLength;
+  int _validLength;
   SAPFA _barcode;
   SCANFA _scancode;
   String _counter;
@@ -15,16 +15,7 @@ class BarcodeUtils {
         PreferenceUtils.counterLen;
   }
 
-  BarcodeUtils.code(String code) {
-    // _validLength = PreferenceUtils.coCodeLen +
-    //     PreferenceUtils.mainCodeLen +
-    //     PreferenceUtils.subCodeLen +
-    //     PreferenceUtils.counterLen;
-
-    barcode = code;
-  }
-
-  set barcode(String code) {
+  set code(String code) {
     if (code.length == _validLength) {
       _barcode = new SAPFA(
           barcodeId: code.substring(0, 14),
@@ -35,14 +26,14 @@ class BarcodeUtils {
           acqdate: "",
           loc: "",
           qty: 0,
-          photo: "");
+          photo: null);
 
       _scancode = SCANFA(barcodeId: _barcode.barcodeId, seq: _counter);
-
       _counter = code.substring(14, 18);
       _isValid = true;
     } else {
       _barcode = null;
+      _scancode = null;
       _counter = "";
       _isValid = false;
     }
@@ -64,7 +55,7 @@ class BarcodeUtils {
     return _counter;
   }
 
-  int get validLength() {
+  int get validLength {
     return _validLength;
   }
 

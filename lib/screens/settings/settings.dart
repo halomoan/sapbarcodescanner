@@ -101,10 +101,10 @@ class _SettingsState extends State<Settings> {
                       children: <Widget>[
                         RaisedButton(
                           onPressed: () {
-                            // PreferenceUtils.coCodeLen = 4;
-                            // PreferenceUtils.mainCodeLen = 6;
-                            // PreferenceUtils.subCodeLen = 4;
-                            // PreferenceUtils.counterLen = 4;
+                            PreferenceUtils.coCodeLen = 4;
+                            PreferenceUtils.mainCodeLen = 6;
+                            PreferenceUtils.subCodeLen = 4;
+                            PreferenceUtils.counterLen = 4;
 
                             Navigator.push(
                               context,
