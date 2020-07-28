@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sapfascanner/model/dbHelper.dart';
 import 'package:sapfascanner/model/model.dart';
+import 'package:sapfascanner/utils/barcodeUtils.dart';
 
 class ExternalReader extends StatefulWidget {
   ExternalReader({Key key}) : super(key: key);
@@ -17,7 +19,7 @@ class _ExternalReaderState extends State<ExternalReader> {
   TextEditingController scanController = TextEditingController();
   FocusNode myFocusNode;
   StreamController<SAPFA> _refreshController;
-  String _scanText;
+  BarcodeUtils _barcodeUtils = BarcodeUtils();
   String _counter;
 
   @override
@@ -28,10 +30,9 @@ class _ExternalReaderState extends State<ExternalReader> {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
       FocusScope.of(context).requestFocus(myFocusNode);
 
-      _scanText = scanController.text;
-      if (_scanText.length == 18) {
-        _handleRefresh(_scanText.substring(0, 14), _scanText.substring(15, 18));
-      }
+      if (scanController.text.length == _barcodeUtils.validLength) {
+        _handleRefresh(scanController.text);
+      } else {}
     });
 
     _refreshController = new StreamController<SAPFA>();
@@ -79,7 +80,7 @@ class _ExternalReaderState extends State<ExternalReader> {
                 style: TextStyle(fontSize: 25),
               ),
               Text(
-                "Counter: ${_counter}",
+                "Counter: $_counter",
                 style: TextStyle(fontSize: 25),
               ),
               Text(
@@ -123,14 +124,12 @@ class _ExternalReaderState extends State<ExternalReader> {
                 onPressed: () {
                   scanController.text = '200010000010010001';
                 },
-                child: Text('Testing')),
+                child: Text('Testing1')),
             RaisedButton(
                 onPressed: () {
-                  setState(() {
-                    scanController.text = '200010000010020002';
-                  });
+                  scanController.text = '200010000010020002';
                 },
-                child: Text('Testing')),
+                child: Text('Testing2')),
             SizedBox(
               height: 10,
             ),
@@ -148,14 +147,30 @@ class _ExternalReaderState extends State<ExternalReader> {
         ));
   }
 
-  void _handleRefresh(String id, String counter) async {
-    print(id);
-    print(counter);
-    List<SAPFA> barcode = await _dbHelper.getSAPFA(id);
-    if (barcode.length > 0) {
-      _counter = counter;
-      _refreshController.add(barcode.first);
-      scanController.text = '';
+  void _handleRefresh(String code) async {
+    print("The Code: " + code);
+    _barcodeUtils = BarcodeUtils.code(code);
+
+    if (_barcodeUtils.isValid) {
+      List<SAPFA> barcode = await _dbHelper.getSAPFA(_barcodeUtils.barcodeId);
+      if (barcode.length > 0) {
+        _counter = _barcodeUtils.counter;
+        _refreshController.add(barcode.first);
+        scanController.text = '';
+      } else {
+        SAPFA _barcode = _barcodeUtils.sapFA;
+        _refreshController.add(_barcode);
+      }
+    } else {
+      print(_barcodeUtils.barcodeId);
+      Fluttertoast.showToast(
+          msg: 'Invalid Barcode. Please Register This Phone To Get Update.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
     }
   }
 }
