@@ -34,7 +34,7 @@ class DisplayPhoto extends StatelessWidget {
                 }
                 return Container();
               })),
-      floatingActionButton: barcode.photo
+      floatingActionButton: !barcode.photo
           ? FloatingActionButton.extended(
               onPressed: () {
                 this._save(context);

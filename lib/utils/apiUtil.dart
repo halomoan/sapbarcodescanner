@@ -52,7 +52,7 @@ class ApiProvider {
     return false;
   }
 
-  Future<FAInfo> getFAInfo(String code) async {
+  Future<FAInfo> getFAInfo(String barcodeId) async {
     FAInfo result;
 
     if (PreferenceUtils.serverUrl == null) {
@@ -60,16 +60,16 @@ class ApiProvider {
     }
 
     try {
-      Response response =
-          await _dio.get("/api/facode/" + PreferenceUtils.uniqueID);
+      Response response = await _dio.get("/api/facode/" + barcodeId);
+
       if (response.data['desc'] != null) {
         result = new FAInfo(
-          hasErr: false,
-          desc: response.data['desc'],
-          loc: response.data['loc'],
-          qty: response.data['qty'],
-          acqdate: response.data['acqdate'],
-        );
+            hasErr: false,
+            desc: response.data['desc'],
+            loc: response.data['loc'],
+            qty: int.parse(response.data['qty']),
+            acqdate: response.data['acqdate'],
+            info: true);
       } else if (response.data['msg'] != null) {
         result = new FAInfo(hasErr: true, err: response.data['msg']);
       }

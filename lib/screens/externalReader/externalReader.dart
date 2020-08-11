@@ -7,6 +7,7 @@ import 'package:sapfascanner/model/dbHelper.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:sapfascanner/utils/apiUtil.dart';
 import 'package:sapfascanner/utils/barcodeUtils.dart';
+import 'package:sapfascanner/utils/imageWidget.dart';
 
 import 'noKeyboardEditableText.dart';
 
@@ -24,7 +25,6 @@ class _ExternalReaderState extends State<ExternalReader> {
   FocusNode myFocusNode;
   StreamController<SAPFA> _refreshController;
   BarcodeUtils _barcodeUtils = BarcodeUtils();
-  String _counter;
 
   @override
   void initState() {
@@ -92,8 +92,11 @@ class _ExternalReaderState extends State<ExternalReader> {
                 style: TextStyle(fontSize: 25),
               ),
               Text(
-                "Counter: $_counter",
+                "Counter: ${_barcodeUtils.counter}",
                 style: TextStyle(fontSize: 25),
+              ),
+              SizedBox(
+                height: 20,
               ),
               Text(
                 barcode.desc,
@@ -107,18 +110,23 @@ class _ExternalReaderState extends State<ExternalReader> {
                 'Purchased On: ${barcode.acqdate}',
                 style: TextStyle(fontSize: 20),
               ),
-              SizedBox(
-                height: 20,
-              ),
               Text(
                 'Quantity: ${barcode.qty}',
                 style: TextStyle(fontSize: 20),
               ),
+              SizedBox(
+                  width: 120,
+                  child: FittedBox(
+                    fit: BoxFit.fill,
+                    child: ImageWidget(barcodeId: barcode.barcodeId),
+                  )),
             ]));
   }
 
   @override
   Widget build(BuildContext context) {
+    int iCounter = 0;
+
     return Scaffold(
         appBar: AppBar(title: Text('Scan With External Reader')),
         body: Column(
@@ -134,14 +142,11 @@ class _ExternalReaderState extends State<ExternalReader> {
             Text('Scanned Output'),
             RaisedButton(
                 onPressed: () {
-                  scanController.text = '200030000010010001';
+                  iCounter++;
+                  scanController.text =
+                      '20003000001001000' + iCounter.toString();
                 },
                 child: Text('Testing1')),
-            RaisedButton(
-                onPressed: () {
-                  scanController.text = '200030000010004';
-                },
-                child: Text('Testing2')),
             SizedBox(
               height: 10,
             ),
@@ -166,15 +171,17 @@ class _ExternalReaderState extends State<ExternalReader> {
     if (_barcodeUtils.isValid) {
       SAPFA _barcode = _barcodeUtils.sapFA;
       SCANFA _scancode = _barcodeUtils.scanFA;
+
       if (_barcodeUtils.isNew) {
         _getFAInfo(_barcode.barcodeId);
+        _dbHelper.addSAPFA(_barcode);
         _dbHelper.addScanFA(_scancode);
       } else {
+        _dbHelper.addScanFA(_scancode);
+
         if (!_barcode.info) {
           _getFAInfo(_barcode.barcodeId);
         }
-        _dbHelper.addSAPFA(_barcode);
-        _dbHelper.addScanFA(_scancode);
       }
       _refreshController.add(_barcode);
     } else {

@@ -6,8 +6,8 @@ class SAPFA {
   String desc = "";
   String loc = "";
   String acqdate = "";
-  bool photo;
-  bool info;
+  bool photo; // boolean
+  bool info; // boolean
   int qty = 0;
   int scanqty = 0;
   int createdAt = 0;
@@ -42,15 +42,15 @@ class SAPFA {
   }
 
   SAPFA.fromMap(Map<String, dynamic> map) {
-    barcodeId = map['barcodid'];
+    barcodeId = map['barcodeid'];
     coCode = map['cocode'];
     mainCode = map['maincode'];
     subCode = map['subcode'];
     desc = map['desc'];
     loc = map['loc'];
     acqdate = map['acqdate'];
-    photo = map['photo'];
-    info = map['info'];
+    photo = (map['photo'] == 1) ? true : false;
+    info = (map['info'] == 1) ? true : false;
     qty = map['qty'];
     scanqty = map['scanqty'];
     createdAt = map['createdat'];

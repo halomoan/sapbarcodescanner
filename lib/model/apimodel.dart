@@ -46,8 +46,8 @@ class FAInfo {
   String desc;
   String loc;
   String acqdate;
-  int qty;
   bool info;
+  int qty;
   String err;
   bool hasErr;
 

@@ -30,21 +30,22 @@ class BarcodeUtils {
     } else {
       _isNew = true;
       sapfa = new SAPFA(
-          barcodeId: _barcodeId,
-          coCode: _plainCode.substring(0, PreferenceUtils.coCodeLen),
-          mainCode: _plainCode.substring(PreferenceUtils.coCodeLen,
-              PreferenceUtils.coCodeLen + PreferenceUtils.mainCodeLen),
-          subCode: _plainCode.substring(
-              PreferenceUtils.coCodeLen + PreferenceUtils.mainCodeLen,
-              PreferenceUtils.coCodeLen +
-                  PreferenceUtils.mainCodeLen +
-                  PreferenceUtils.subCodeLen),
-          desc: "",
-          acqdate: "",
-          loc: "",
-          qty: 0,
-          photo: false,
-          info: false);
+        barcodeId: _barcodeId,
+        coCode: _plainCode.substring(0, PreferenceUtils.coCodeLen),
+        mainCode: _plainCode.substring(PreferenceUtils.coCodeLen,
+            PreferenceUtils.coCodeLen + PreferenceUtils.mainCodeLen),
+        subCode: _plainCode.substring(
+            PreferenceUtils.coCodeLen + PreferenceUtils.mainCodeLen,
+            PreferenceUtils.coCodeLen +
+                PreferenceUtils.mainCodeLen +
+                PreferenceUtils.subCodeLen),
+        desc: "",
+        loc: "",
+        acqdate: "",
+        photo: false,
+        info: false,
+        qty: 0,
+      );
     }
 
     return sapfa;
@@ -60,7 +61,6 @@ class BarcodeUtils {
               PreferenceUtils.subCodeLen);
 
       _barcode = await _findInDB();
-
       _counter = _plainCode.substring(
           PreferenceUtils.coCodeLen +
               PreferenceUtils.mainCodeLen +

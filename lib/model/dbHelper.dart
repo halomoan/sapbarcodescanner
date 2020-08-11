@@ -88,7 +88,7 @@ class DBHelper {
   Future<List<SAPFA>> getList() async {
     final db = await init();
     final maps = await db.rawQuery(
-        'select sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc,sapfa.photo,sapfa.qty, count(scanfa.seq) as scanqty, max(createdat) as createdat from sapfa left join scanfa using(barcodeid) group by sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc, sapfa.qty');
+        'select sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc,sapfa.photo,sapfa.info,sapfa.qty, count(scanfa.seq) as scanqty, max(createdat) as createdat from sapfa left join scanfa using(barcodeid) group by sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc, sapfa.qty');
 
     return List.generate(maps.length, (i) {
       //create a list of memos
@@ -99,7 +99,8 @@ class DBHelper {
           subCode: maps[i]['subcode'],
           desc: maps[i]['desc'],
           loc: maps[i]['loc'],
-          info: maps[i]['info'],
+          photo: (maps[i]['photo'] == 1) ? true : false,
+          info: (maps[i]['info'] == 1) ? true : false,
           qty: maps[i]['qty'],
           scanqty: maps[i]['scanqty'],
           createdAt: maps[i]['createdat']);
