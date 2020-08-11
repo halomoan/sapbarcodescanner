@@ -32,7 +32,8 @@ dependencies:
   device_info:
   path_provider:
   path:
-  cached_network_image: ^2.2.0+1
+  dio:
+  flutter_cache_manager:
   clipboard: ^0.1.2+8
   flutter_icons: ^1.1.0
 

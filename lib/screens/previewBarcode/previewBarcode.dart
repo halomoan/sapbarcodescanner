@@ -45,7 +45,20 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
               _dbHelper.addScanFA(scancode);
               scancode = SCANFA(barcodeId: '20001000001002', seq: '0002');
               _dbHelper.addScanFA(scancode);
-              scancode = SCANFA(barcodeId: '20001000001002', seq: '0007');
+
+              barcode = SAPFA(
+                  barcodeId: '20002000001002',
+                  coCode: '2000',
+                  mainCode: '200000',
+                  subCode: '1002',
+                  desc: 'Machine B',
+                  loc: 'Level 1',
+                  qty: 300);
+              _dbHelper.addSAPFA(barcode);
+
+              scancode = SCANFA(barcodeId: '20002000001002', seq: '0003');
+              _dbHelper.addScanFA(scancode);
+              scancode = SCANFA(barcodeId: '20002000001002', seq: '0002');
               _dbHelper.addScanFA(scancode);
             },
             color: Colors.blue,
@@ -86,8 +99,8 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
                       itemBuilder: (context, index) {
                         return CustomListItem(
                           barcode: snapshot.data[index],
-                          thumbnail:
-                              ImageWidget(snapshot.data[index].barcodeId),
+                          thumbnail: ImageWidget(
+                              barcodeId: snapshot.data[index].barcodeId),
                         );
                       },
                       separatorBuilder: (context, index) => Container(

@@ -1,12 +1,20 @@
+import 'package:sapfascanner/model/dbHelper.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'PreferenceUtils.dart';
 
 class BarcodeUtils {
+  final DBHelper _dbHelper = DBHelper();
+
+  String _plainCode;
+  String _barcodeId;
+  String _counter;
+
+  bool _isValid;
+  bool _isNew;
   int _validLength;
+
   SAPFA _barcode;
   SCANFA _scancode;
-  String _counter;
-  bool _isValid;
 
   BarcodeUtils() {
     _validLength = PreferenceUtils.coCodeLen +
@@ -15,27 +23,59 @@ class BarcodeUtils {
         PreferenceUtils.counterLen;
   }
 
-  set code(String code) {
-    if (code.length == _validLength) {
-      _barcode = new SAPFA(
-          barcodeId: code.substring(0, 14),
-          coCode: code.substring(0, 4),
-          mainCode: code.substring(4, 10),
-          subCode: code.substring(10, 14),
+  Future<SAPFA> _findInDB() async {
+    SAPFA sapfa = await _dbHelper.getSAPFA(_barcodeId);
+    if (sapfa != null) {
+      _isNew = false;
+    } else {
+      _isNew = true;
+      sapfa = new SAPFA(
+          barcodeId: _barcodeId,
+          coCode: _plainCode.substring(0, PreferenceUtils.coCodeLen),
+          mainCode: _plainCode.substring(PreferenceUtils.coCodeLen,
+              PreferenceUtils.coCodeLen + PreferenceUtils.mainCodeLen),
+          subCode: _plainCode.substring(
+              PreferenceUtils.coCodeLen + PreferenceUtils.mainCodeLen,
+              PreferenceUtils.coCodeLen +
+                  PreferenceUtils.mainCodeLen +
+                  PreferenceUtils.subCodeLen),
           desc: "",
           acqdate: "",
           loc: "",
           qty: 0,
-          photo: null);
+          photo: false,
+          info: false);
+    }
 
+    return sapfa;
+  }
+
+  setCode(String code) async {
+    _plainCode = code;
+    if (_plainCode.length == _validLength) {
+      _barcodeId = code.substring(
+          0,
+          PreferenceUtils.coCodeLen +
+              PreferenceUtils.mainCodeLen +
+              PreferenceUtils.subCodeLen);
+
+      _barcode = await _findInDB();
+
+      _counter = _plainCode.substring(
+          PreferenceUtils.coCodeLen +
+              PreferenceUtils.mainCodeLen +
+              PreferenceUtils.subCodeLen,
+          PreferenceUtils.coCodeLen +
+              PreferenceUtils.mainCodeLen +
+              PreferenceUtils.subCodeLen +
+              PreferenceUtils.counterLen);
       _scancode = SCANFA(barcodeId: _barcode.barcodeId, seq: _counter);
-      _counter = code.substring(14, 18);
-      _isValid = true;
+      this._isValid = true;
     } else {
       _barcode = null;
       _scancode = null;
       _counter = "";
-      _isValid = false;
+      this._isValid = false;
     }
   }
 
@@ -61,5 +101,17 @@ class BarcodeUtils {
 
   bool get isValid {
     return _isValid;
+  }
+
+  bool get isNew {
+    return _isNew;
+  }
+
+  bool get doRefresh {
+    if (this._isNew || _barcode.desc.length == 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

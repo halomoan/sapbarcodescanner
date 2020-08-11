@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
+import 'package:sapfascanner/model/apimodel.dart';
 import 'package:sapfascanner/screens/showUniqueID/showUniqueID.dart';
+import 'package:sapfascanner/utils/apiUtil.dart';
 import '../../utils/PreferenceUtils.dart';
 
 class Settings extends StatefulWidget {
@@ -10,14 +14,16 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  bool _showConfigPasswd = false;
+  // bool _showConfigPasswd = false;
+  ApiProvider api = new ApiProvider();
+  bool isLoading = false;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Widget _buildConfigServer() {
     return TextFormField(
       keyboardType: TextInputType.url,
-      initialValue: PreferenceUtils.configServer,
+      initialValue: PreferenceUtils.serverUrl,
       decoration: InputDecoration(
         labelText: 'Server',
         hintText: 'Enter The Server Address',
@@ -25,67 +31,87 @@ class _SettingsState extends State<Settings> {
       ),
       validator: (String value) {
         if (value.isEmpty) {
-          return 'Config Server is Required';
+          return 'Server Address is Required';
         }
         return null;
       },
       onSaved: (String value) {
-        PreferenceUtils.configServer = value;
+        String url = value;
+        if (value.substring(0, 7) == 'http://' ||
+            value.substring(0, 8) == 'https://') {
+          PreferenceUtils.serverUrl = url;
+        } else {
+          PreferenceUtils.serverUrl = 'http://' + url;
+        }
       },
     );
   }
 
-  Widget _buildConfigUserID() {
-    return TextFormField(
-      initialValue: PreferenceUtils.configUserID,
-      decoration: InputDecoration(
-        labelText: 'User ID',
-        hintText: 'Enter The Server UserID',
-        icon: const Icon(Icons.person),
-      ),
-      validator: (String value) {
-        if (value.isEmpty) {
-          return 'User ID is Required';
-        }
-        return null;
-      },
-      onSaved: (String value) {
-        PreferenceUtils.configUserID = value;
-      },
-    );
-  }
+  Widget _buildLastConnect() {
+    int timestamp = PreferenceUtils.lastUpdate;
+    String lastUpdate = "";
+    if (timestamp > 0) {
+      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+      lastUpdate =
+          'Last Update: ' + DateFormat('yyyy-MM-dd – h:mm a').format(dateTime);
+    }
 
-  Widget _buildConfigPasswd() {
-    return TextFormField(
-      initialValue: PreferenceUtils.configPasswd,
-      obscureText: !_showConfigPasswd,
-      decoration: InputDecoration(
-        labelText: 'Password',
-        hintText: 'Enter The Server Password',
-        icon: const Icon(Icons.vpn_key),
-        suffixIcon: GestureDetector(
-          onTap: () {
-            setState(() {
-              _showConfigPasswd = !_showConfigPasswd;
-            });
-          },
-          child: Icon(
-            _showConfigPasswd ? Icons.visibility : Icons.visibility_off,
-            color: Colors.black,
-          ),
-        ),
-      ),
-      validator: (String value) {
-        if (value.isEmpty) {
-          return 'Config Password is Required';
-        }
-        return null;
-      },
-      onSaved: (String value) {
-        PreferenceUtils.configPasswd = value;
-      },
+    return Text(
+      lastUpdate,
+      style: TextStyle(fontSize: 14),
     );
   }
+  // Widget _buildConfigUserID() {
+  //   return TextFormField(
+  //     initialValue: PreferenceUtils.serverUserID,
+  //     decoration: InputDecoration(
+  //       labelText: 'User ID',
+  //       hintText: 'Enter The Server UserID',
+  //       icon: const Icon(Icons.person),
+  //     ),
+  //     validator: (String value) {
+  //       if (value.isEmpty) {
+  //         return 'User ID is Required';
+  //       }
+  //       return null;
+  //     },
+  //     onSaved: (String value) {
+  //       PreferenceUtils.serverUserID = value;
+  //     },
+  //   );
+  // }
+
+  // Widget _buildConfigPasswd() {
+  //   return TextFormField(
+  //     initialValue: PreferenceUtils.serverPasswd,
+  //     obscureText: !_showConfigPasswd,
+  //     decoration: InputDecoration(
+  //       labelText: 'Password',
+  //       hintText: 'Enter The Server Password',
+  //       icon: const Icon(Icons.vpn_key),
+  //       suffixIcon: GestureDetector(
+  //         onTap: () {
+  //           setState(() {
+  //             _showConfigPasswd = !_showConfigPasswd;
+  //           });
+  //         },
+  //         child: Icon(
+  //           _showConfigPasswd ? Icons.visibility : Icons.visibility_off,
+  //           color: Colors.black,
+  //         ),
+  //       ),
+  //     ),
+  //     validator: (String value) {
+  //       if (value.isEmpty) {
+  //         return 'Password is Required';
+  //       }
+  //       return null;
+  //     },
+  //     onSaved: (String value) {
+  //       PreferenceUtils.serverPasswd = value;
+  //     },
+  //   );
+  // }
 
   Widget _formWidget() {
     return FutureBuilder(
@@ -101,11 +127,6 @@ class _SettingsState extends State<Settings> {
                       children: <Widget>[
                         RaisedButton(
                           onPressed: () {
-                            PreferenceUtils.coCodeLen = 4;
-                            PreferenceUtils.mainCodeLen = 6;
-                            PreferenceUtils.subCodeLen = 4;
-                            PreferenceUtils.counterLen = 4;
-
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -124,24 +145,31 @@ class _SettingsState extends State<Settings> {
                     ),
                   ),
                   _buildConfigServer(),
-                  _buildConfigUserID(),
-                  _buildConfigPasswd(),
+                  // _buildConfigUserID(),
+                  // _buildConfigPasswd(),
                   SizedBox(
                     height: 20,
                   ),
-                  RaisedButton(
-                    onPressed: () {
-                      if (_formKey.currentState.validate()) {
-                        _formKey.currentState.save();
-                      } else {
-                        print("Empty");
-                      }
-                    },
-                    child: Text(
-                      "Connect",
-                      style: TextStyle(color: Colors.blue, fontSize: 16),
-                    ),
+                  isLoading == false
+                      ? RaisedButton(
+                          onPressed: () {
+                            if (_formKey.currentState.validate()) {
+                              _formKey.currentState.save();
+                              _connectServer();
+                            } else {
+                              print("Empty");
+                            }
+                          },
+                          child: Text(
+                            "Connect",
+                            style: TextStyle(color: Colors.blue, fontSize: 16),
+                          ),
+                        )
+                      : Center(child: CircularProgressIndicator()),
+                  SizedBox(
+                    height: 10,
                   ),
+                  _buildLastConnect()
                 ],
               )
             : Center(
@@ -151,11 +179,49 @@ class _SettingsState extends State<Settings> {
     );
   }
 
-  Future<bool> _checkRegistration() {
-    // var result = await http.get('https://getProjectList');
-    // return result;
-    return Future.delayed(Duration(milliseconds: 2000))
-        .then((onValue) => false);
+  Future<void> _connectServer() async {
+    APIConfig result;
+    setState(() {
+      isLoading = true;
+    });
+    result = await api.initApp();
+    setState(() {
+      isLoading = false;
+    });
+
+    if (!result.hasError()) {
+      PreferenceUtils.accessToken = result.token;
+      PreferenceUtils.coCodeLen = int.parse(result.sub1len);
+      PreferenceUtils.mainCodeLen = int.parse(result.sub2len);
+      PreferenceUtils.subCodeLen = int.parse(result.sub3len);
+      PreferenceUtils.counterLen = int.parse(result.runlen);
+
+      final timestamp = new DateTime.now().millisecondsSinceEpoch;
+      PreferenceUtils.lastUpdate = timestamp;
+
+      Fluttertoast.showToast(
+          msg: 'Successfully Connected !',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.blue,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      Fluttertoast.showToast(
+          msg: result.err,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  Future<bool> _checkRegistration() async {
+    var result = await api.checkRegistration();
+    return result;
   }
 
   @override

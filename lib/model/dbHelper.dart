@@ -1,3 +1,4 @@
+import 'package:sapfascanner/model/apimodel.dart';
 import 'package:sqflite/sqflite.dart'; //sqflite package
 import 'package:path_provider/path_provider.dart'; //path_provider package
 import 'package:path/path.dart'; //used to join paths
@@ -38,7 +39,8 @@ class DBHelper {
               desc TEXT,
               loc TEXT,
               acqdate TEXT,
-              photo TEXT,              
+              photo BOOLEAN,
+              info BOOLEAN,              
               qty INTEGER                      
               )""");
     await db.execute("""
@@ -72,27 +74,15 @@ class DBHelper {
     );
   }
 
-  Future<List<SAPFA>> getSAPFA(String id) async {
+  Future<SAPFA> getSAPFA(String id) async {
     //returns the barcodes as a list (array)
 
     final db = await init();
-    final maps = await db.query("sapfa",
+    final res = await db.query("sapfa",
         where: "barcodeid = ?",
         whereArgs: [id]); //query all the rows in a table as an array of maps
 
-    return List.generate(maps.length, (i) {
-      //create a list of memos
-      return SAPFA(
-          barcodeId: maps[i]['barcodeid'],
-          coCode: maps[i]['cocode'],
-          mainCode: maps[i]['maincode'],
-          subCode: maps[i]['subcode'],
-          desc: maps[i]['desc'],
-          loc: maps[i]['loc'],
-          acqdate: maps[i]['acqdate'],
-          photo: maps[i]['photo'],
-          qty: maps[i]['qty']);
-    });
+    return res.isNotEmpty ? SAPFA.fromMap(res.first) : null;
   }
 
   Future<List<SAPFA>> getList() async {
@@ -109,7 +99,7 @@ class DBHelper {
           subCode: maps[i]['subcode'],
           desc: maps[i]['desc'],
           loc: maps[i]['loc'],
-          photo: maps[i]['photo'],
+          info: maps[i]['info'],
           qty: maps[i]['qty'],
           scanqty: maps[i]['scanqty'],
           createdAt: maps[i]['createdat']);
@@ -173,7 +163,7 @@ class DBHelper {
   //   });
   // }
 
-  Future<int> updatePhoto(String id, String photo) async {
+  Future<int> updatePhoto(String id, int photo) async {
     //returns number of items deleted
     final db = await init();
 
@@ -189,16 +179,12 @@ class DBHelper {
     return noofrec;
   }
 
-  Future<int> updateInfo(String id, String desc) async {
+  Future<int> updateInfo(String id, FAInfo infoData) async {
     //returns number of items deleted
     final db = await init();
 
-    Map<String, dynamic> row = {
-      "desc": desc,
-    };
-
     // do the update and get the number of affected rows
-    int noofrec = await db.update("sapfa", row,
+    int noofrec = await db.update("sapfa", infoData.toMap(),
         where: "barcodeid = ?",
         whereArgs: [id]); // use whereArgs to avoid SQL injection);
 

@@ -6,6 +6,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:sapfascanner/model/dbHelper.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:sapfascanner/screens/previewBarcode/previewBarcode.dart';
+import 'package:sapfascanner/utils/imageWidget.dart';
 
 class DisplayPhoto extends StatelessWidget {
   final DBHelper _dbHelper = DBHelper();
@@ -24,10 +25,16 @@ class DisplayPhoto extends StatelessWidget {
       // The image is stored as a file on the device. Use the `Image.file`
       // constructor with the given path to display the image.
       body: Container(
-          child: PhotoView(
-        imageProvider: FileImage(File(imagePath)),
-      )),
-      floatingActionButton: barcode.photo == null
+          child: FutureBuilder<ImageProvider<dynamic>>(
+              future: _getImage(imagePath),
+              builder: (BuildContext context,
+                  AsyncSnapshot<ImageProvider<dynamic>> snapshot) {
+                if (snapshot.hasData) {
+                  return PhotoView(imageProvider: snapshot.data);
+                }
+                return Container();
+              })),
+      floatingActionButton: barcode.photo
           ? FloatingActionButton.extended(
               onPressed: () {
                 this._save(context);
@@ -45,6 +52,13 @@ class DisplayPhoto extends StatelessWidget {
     );
   }
 
+  Future<ImageProvider<dynamic>> _getImage(String imagePath) async {
+    print(imagePath);
+    return imagePath != null
+        ? FileImage(File(imagePath))
+        : await ImageWidget(barcodeId: barcode.barcodeId).getImageProvider();
+  }
+
   _save(BuildContext context) async {
     final newpath = join(
       (await getApplicationDocumentsDirectory()).path,
@@ -59,7 +73,7 @@ class DisplayPhoto extends StatelessWidget {
       }
     } catch (e) {}
 
-    await _dbHelper.updatePhoto(this.barcode.barcodeId, newpath);
+    await _dbHelper.updatePhoto(this.barcode.barcodeId, 1);
 
     Navigator.pushAndRemoveUntil(
       context,
@@ -69,14 +83,16 @@ class DisplayPhoto extends StatelessWidget {
   }
 
   _delete(BuildContext context) async {
-    File f = File(imagePath);
+    String _filePath = join((await getApplicationDocumentsDirectory()).path,
+        '${barcode.barcodeId}.png');
+    File f = File(_filePath);
 
     try {
       if (await f.exists()) {
         f.delete();
       }
     } catch (e) {}
-    await _dbHelper.updatePhoto(this.barcode.barcodeId, null);
+    await _dbHelper.updatePhoto(this.barcode.barcodeId, 0);
 
     Navigator.pushAndRemoveUntil(
       context,

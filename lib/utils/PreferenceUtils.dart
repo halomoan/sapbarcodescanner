@@ -47,58 +47,33 @@ class PreferenceUtils {
   }
 
   // Configuration Server
-  static get configServer {
-    return _prefs.getString('configServer') ?? '';
+  static get serverUrl {
+    return _prefs.getString('serverUrl') ?? '';
   }
 
-  static set configServer(String value) {
-    _prefs.setString('configServer', value);
+  static set serverUrl(String value) {
+    _prefs.setString('serverUrl', value);
   }
 
-  static get configUserID {
-    return _prefs.getString('configUserID') ?? '';
+  static get serverPasswd {
+    return _prefs.getString('serverPasswd') ?? '';
   }
 
-  static set configUserID(String value) {
-    _prefs.setString('configUserID', value);
-  }
-
-  static get configPasswd {
-    return _prefs.getString('configPasswd') ?? '';
-  }
-
-  static set configPasswd(String value) {
-    _prefs.setString('configPasswd', value);
-  }
-
-  // Update Server
-  static get updServer {
-    return _prefs.getString('updServer') ?? '';
-  }
-
-  static set updServer(String value) {
-    _prefs.setString('updServer', value);
-  }
-
-  static get updUserID {
-    return _prefs.getString('updUserID') ?? '';
-  }
-
-  static set updUserID(String value) {
-    _prefs.setString('updUserID', value);
-  }
-
-  static get updPasswd {
-    return _prefs.getString('updPasswd') ?? '';
-  }
-
-  static set updPasswd(String value) {
-    _prefs.setString('updPasswd', value);
+  static set serverPasswd(String value) {
+    _prefs.setString('serverPasswd', value);
   }
 
   // Unique ID
   static get uniqueID {
     return _prefs.getString('uniqueID') ?? '';
+  }
+
+  static get accessToken {
+    return _prefs.getString('accessToken') ?? '';
+  }
+
+  static set accessToken(String value) {
+    _prefs.setString('accessToken', value);
   }
 
   // Barcode Format
@@ -132,5 +107,13 @@ class PreferenceUtils {
 
   static set counterLen(int value) {
     _prefs.setInt('counterLen', value);
+  }
+
+  static get lastUpdate {
+    return _prefs.getInt('lastUpdate') ?? 0;
+  }
+
+  static set lastUpdate(int value) {
+    _prefs.setInt('lastUpdate', value);
   }
 }

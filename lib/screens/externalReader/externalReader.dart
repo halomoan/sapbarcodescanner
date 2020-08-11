@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:sapfascanner/model/apimodel.dart';
 import 'package:sapfascanner/model/dbHelper.dart';
 import 'package:sapfascanner/model/model.dart';
+import 'package:sapfascanner/utils/apiUtil.dart';
 import 'package:sapfascanner/utils/barcodeUtils.dart';
 
 import 'noKeyboardEditableText.dart';
@@ -17,6 +19,7 @@ class ExternalReader extends StatefulWidget {
 
 class _ExternalReaderState extends State<ExternalReader> {
   final DBHelper _dbHelper = DBHelper();
+  ApiProvider api = new ApiProvider();
   TextEditingController scanController = TextEditingController();
   FocusNode myFocusNode;
   StreamController<SAPFA> _refreshController;
@@ -47,17 +50,18 @@ class _ExternalReaderState extends State<ExternalReader> {
       } else if (scanController.text.length == _barcodeUtils.validLength) {
         _handleRefresh(scanController.text);
       } else {
-        print(scanController.text);
-        Fluttertoast.showToast(
-            msg: 'Invalid Barcode.',
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-        scanController.text = '';
-        _refreshController.add(null);
+        if (scanController.text.length > 0) {
+          Fluttertoast.showToast(
+              msg: 'Invalid Barcode.',
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0);
+          scanController.text = '';
+          _refreshController.add(null);
+        }
         //FocusScope.of(context).requestFocus(new FocusNode());
       }
     });
@@ -157,20 +161,22 @@ class _ExternalReaderState extends State<ExternalReader> {
   }
 
   void _handleRefresh(String code) async {
-    _barcodeUtils.code = code;
+    await _barcodeUtils.setCode(code);
 
     if (_barcodeUtils.isValid) {
-      List<SAPFA> barcode = await _dbHelper.getSAPFA(_barcodeUtils.barcodeId);
-      if (barcode.length > 0) {
-        _counter = _barcodeUtils.counter;
-        _refreshController.add(barcode.first);
-      } else {
-        SAPFA _barcode = _barcodeUtils.sapFA;
-        _dbHelper.addSAPFA(_barcode);
-        SCANFA _scancode = _barcodeUtils.scanFA;
+      SAPFA _barcode = _barcodeUtils.sapFA;
+      SCANFA _scancode = _barcodeUtils.scanFA;
+      if (_barcodeUtils.isNew) {
+        _getFAInfo(_barcode.barcodeId);
         _dbHelper.addScanFA(_scancode);
-        _refreshController.add(_barcode);
+      } else {
+        if (!_barcode.info) {
+          _getFAInfo(_barcode.barcodeId);
+        }
+        _dbHelper.addSAPFA(_barcode);
+        _dbHelper.addScanFA(_scancode);
       }
+      _refreshController.add(_barcode);
     } else {
       Fluttertoast.showToast(
           msg: 'Invalid Barcode.',
@@ -181,6 +187,15 @@ class _ExternalReaderState extends State<ExternalReader> {
           textColor: Colors.white,
           fontSize: 16.0);
       scanController.text = '';
+    }
+  }
+
+  _getFAInfo(String barcodeId) async {
+    FAInfo result = await api.getFAInfo(barcodeId);
+    if (!result.hasErr) {
+      _dbHelper.updateInfo(barcodeId, result);
+      SAPFA _barcode = await _dbHelper.getSAPFA(barcodeId);
+      _refreshController.add(_barcode);
     }
   }
 }

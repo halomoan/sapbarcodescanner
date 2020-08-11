@@ -58,7 +58,6 @@ class CameraState extends State<Camera> {
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
-          print(snapshot.connectionState);
           if (snapshot.connectionState == ConnectionState.done) {
             // If the Future is complete, display the preview.
             return CameraPreview(_controller);
@@ -94,7 +93,9 @@ class CameraState extends State<Camera> {
                 // Attempt to take a picture and log where it's been saved.
                 await _controller.takePicture(path);
               }
-            } catch (e) {}
+            } catch (e) {
+              print('error caught: $e');
+            }
 
             // If the picture was taken, display it on a new screen.
             Navigator.pushAndRemoveUntil(

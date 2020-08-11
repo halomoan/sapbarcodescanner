@@ -6,7 +6,8 @@ class SAPFA {
   String desc = "";
   String loc = "";
   String acqdate = "";
-  String photo;
+  bool photo;
+  bool info;
   int qty = 0;
   int scanqty = 0;
   int createdAt = 0;
@@ -20,6 +21,7 @@ class SAPFA {
       this.loc,
       this.acqdate,
       this.photo,
+      this.info,
       this.qty,
       this.scanqty,
       this.createdAt});
@@ -34,6 +36,7 @@ class SAPFA {
       "loc": loc,
       "acqdate": acqdate,
       "photo": photo,
+      "info": info,
       "qty": qty
     };
   }
@@ -47,6 +50,7 @@ class SAPFA {
     loc = map['loc'];
     acqdate = map['acqdate'];
     photo = map['photo'];
+    info = map['info'];
     qty = map['qty'];
     scanqty = map['scanqty'];
     createdAt = map['createdat'];

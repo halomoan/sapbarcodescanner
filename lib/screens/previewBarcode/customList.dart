@@ -77,7 +77,7 @@ class CustomListItem extends StatelessWidget {
   }
 
   _onPhotoTap(BuildContext context, SAPFA barcode) {
-    if (barcode.photo == null) {
+    if (barcode.photo == 0) {
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -90,7 +90,7 @@ class CustomListItem extends StatelessWidget {
           MaterialPageRoute(
               builder: (context) => DisplayPhoto(
                     barcode: barcode,
-                    imagePath: barcode.photo,
+                    imagePath: null,
                   )));
     }
   }
