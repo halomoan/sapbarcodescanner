@@ -48,7 +48,7 @@ class PreferenceUtils {
 
   // Configuration Server
   static get serverUrl {
-    return _prefs.getString('serverUrl') ?? '';
+    return _prefs.getString('serverUrl') ?? null;
   }
 
   static set serverUrl(String value) {
@@ -56,7 +56,7 @@ class PreferenceUtils {
   }
 
   static get serverPasswd {
-    return _prefs.getString('serverPasswd') ?? '';
+    return _prefs.getString('serverPasswd') ?? null;
   }
 
   static set serverPasswd(String value) {

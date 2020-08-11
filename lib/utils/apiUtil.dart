@@ -32,6 +32,8 @@ class ApiProvider {
   }
 
   Future<bool> checkRegistration() async {
+    print(PreferenceUtils.serverUrl);
+
     if (PreferenceUtils.serverUrl == null) {
       return false;
     }
