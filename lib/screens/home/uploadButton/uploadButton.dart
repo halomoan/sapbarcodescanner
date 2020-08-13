@@ -9,6 +9,6 @@ class UploadButton extends StatelessWidget {
   }
 
   void _onUploadTap(BuildContext context) {
-    Navigator.pushNamed(context, '/display');
+    Navigator.pushNamed(context, '/upload');
   }
 }

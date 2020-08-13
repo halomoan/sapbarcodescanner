@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'scanButton/scanButton.dart';
 import 'readerButton/readerButton.dart';
-import 'camPhotoButton/camPhotoButton.dart';
+//import 'camPhotoButton/camPhotoButton.dart';
 import 'previewButton/previewButton.dart';
+import 'uploadButton/uploadButton.dart';
 
 class MenuList extends StatelessWidget {
   const MenuList();
@@ -16,10 +17,11 @@ class MenuList extends StatelessWidget {
             crossAxisCount: 2,
             padding: const EdgeInsets.all(15.0),
             children: [
-              CamPhotoButton(),
+              
               CameraButton(),
               ReaderButton(),
               PreviewButton(),
+              UploadButton()
             ]));
   }
 }
