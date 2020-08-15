@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
+import 'package:sapfascanner/model/model.dart';
 import 'package:sapfascanner/utils/PreferenceUtils.dart';
 import 'package:sapfascanner/model/apimodel.dart';
+import 'package:path/path.dart' as p;
 
 class ApiProvider {
   Dio _dio;
@@ -19,7 +23,6 @@ class ApiProvider {
 
       if (PreferenceUtils.accessToken != null &&
           options.path != '/api/falogin') {
-        print(PreferenceUtils.accessToken);
         options.headers["Authorization"] =
             'Bearer ' + PreferenceUtils.accessToken;
       }
@@ -32,8 +35,6 @@ class ApiProvider {
   }
 
   Future<bool> checkRegistration() async {
-    print(PreferenceUtils.serverUrl);
-
     if (PreferenceUtils.serverUrl == null) {
       return false;
     }
@@ -48,7 +49,11 @@ class ApiProvider {
       if (response.data['status'] != null) {
         return response.data['status'];
       }
-    } on DioError catch (e) {}
+    } on DioError catch (e) {
+      if (e.message != null) {
+        print(e.message);
+      }
+    }
     return false;
   }
 
@@ -93,6 +98,123 @@ class ApiProvider {
     return result;
   }
 
+  Future<Map<String, dynamic>> uploadData(
+      StreamController _progress, List<SCANFA> scanfa, List images) async {
+    Map<String, dynamic> result = {'noOfFile': 0, 'status': true, 'msg': ''};
+
+    if (PreferenceUtils.serverUrl == null) {
+      result['status'] = false;
+      result['msg'] = 'Please register this phone';
+      return result;
+    }
+
+    result['noOfFile'] = images.length;
+
+    List files = new List();
+
+    for (var image in images) {
+      files.add(await MultipartFile.fromFile(image.path,
+          filename: p.basename(image.path)));
+    }
+
+    List codes = new List();
+    for (var code in scanfa) {
+      codes.add(code.barcodeId);
+    }
+
+    FormData formData = FormData.fromMap({"codes": codes, "files": files});
+
+    try {
+      Response response = await _dio.post(
+        "/api/faimage",
+        data: formData,
+        onSendProgress: (received, total) {
+          if (total != -1) {
+            //print((received / total * 100).toStringAsFixed(0) + "%x");
+            _progress.add((received / total * 100).toStringAsFixed(0) + "%");
+          }
+        },
+      );
+
+      result['status'] =
+          (response.data['status'] != null) ? response.data['status'] : false;
+      if (result['status']) {
+        result['msg'] = 'Success';
+      } else {
+        result['msg'] =
+            (response.data['msg'] != null) ? response.data['msg'] : '';
+      }
+    } on DioError catch (e) {
+      if (e.response != null) {
+        //print(e.response.data);
+        result['status'] = false;
+        result['msg'] = e.response.data;
+      } else {
+        //print(e.message);
+        result['status'] = false;
+        result['msg'] = e.message;
+      }
+    }
+
+    return result;
+  }
+
+  // Future<Map<String, dynamic>> uploadImage(List images) async {
+  //   Map<String, dynamic> result = {'noOfFile': 0, 'status': true, 'msg': ''};
+
+  //   if (PreferenceUtils.serverUrl == null) {
+  //     result['status'] = false;
+  //     result['msg'] = 'Please register this phone';
+  //     return result;
+  //   }
+
+  //   result['noOfFile'] = images.length;
+
+  //   List files = new List();
+
+  //   for (var image in images) {
+  //     files.add(await MultipartFile.fromFile(image.path,
+  //         filename: p.basename(image.path)));
+  //   }
+
+  //   FormData formData = FormData.fromMap({"files": files});
+
+  //   try {
+  //     Response response = await _dio.post(
+  //       "/api/faimage",
+  //       data: formData,
+  //       onSendProgress: (received, total) {
+  //         if (total != -1) {
+  //           print((received / total * 100).toStringAsFixed(0) + "%");
+  //         }
+  //       },
+  //     );
+
+  //     result['status'] =
+  //         (response.data['status'] != null) ? response.data['status'] : false;
+  //     if (result['status']) {
+  //       result['msg'] = 'Success';
+  //     } else {
+  //       result['msg'] =
+  //           (response.data['msg'] != null) ? response.data['msg'] : '';
+  //     }
+
+  //     print(response);
+  //   } on DioError catch (e) {
+  //     if (e.response != null) {
+  //       //print(e.response.data);
+  //       result['status'] = false;
+  //       result['msg'] = e.response.data;
+  //     } else {
+  //       //print(e.message);
+  //       result['status'] = false;
+  //       result['msg'] = e.message;
+  //     }
+  //   }
+
+  //   return result;
+  // }
+
   Future<APIConfig> initApp() async {
     APIConfig result;
 
@@ -134,5 +256,9 @@ class ApiProvider {
       }
     }
     return result;
+  }
+
+  get dio {
+    return _dio;
   }
 }

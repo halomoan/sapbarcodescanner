@@ -50,7 +50,6 @@ class ImageWidget extends StatelessWidget {
       future: getImage(),
       initialData: null,
       builder: (BuildContext context, AsyncSnapshot<Image> snapshot) {
-        print(snapshot.connectionState);
         if (snapshot.connectionState == ConnectionState.done) {
           return snapshot.data;
         } else {

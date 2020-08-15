@@ -2,11 +2,12 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:sapfascanner/model/dbHelper.dart';
-import 'package:sapfascanner/model/model.dart';
+import 'package:sapfascanner/utils/barcodeUtils.dart';
 import 'iconCamera.dart';
 
 class CameraButton extends StatelessWidget {
   final DBHelper _dbHelper = DBHelper();
+  final BarcodeUtils _barcodeUtils = new BarcodeUtils();
 
   @override
   Widget build(BuildContext context) {
@@ -21,36 +22,33 @@ class CameraButton extends StatelessWidget {
   startBarcodeScanStream() async {
     FlutterBarcodeScanner.getBarcodeStreamReceiver(
             "#ff6666", "Cancel", true, ScanMode.BARCODE)
-        .listen((barcode) => _showScan(barcode));
+        .listen((code) => _processScan(code));
   }
 
-  void _showScan(String barcode) {
+  void _processScan(String code) async {
+    await _barcodeUtils.setCode(code);
+
+    _showScan(_barcodeUtils.isValid);
+    if (_barcodeUtils.isValid) {
+      _saveCode();
+    }
+  }
+
+  void _showScan(bool status) {
     Fluttertoast.showToast(
-        msg: barcode,
+        msg: _barcodeUtils.scanCode,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
+        backgroundColor: status ? Colors.blue : Colors.red,
         textColor: Colors.white,
         fontSize: 16.0);
   }
 
-  bool _validateCode(String barcode) {
-    return false;
-  }
-
-  void _saveCode(String barcode) {
-    var itemFA = SAPFA(
-        barcodeId: '20002000001001',
-        coCode: '2000',
-        mainCode: '200000',
-        subCode: '1001',
-        desc: 'Machine A',
-        loc: 'Level 2',
-        qty: 300);
-    _dbHelper.addSAPFA(itemFA);
-
-    var itemScan = SCANFA(barcodeId: '20002000001001', seq: '0001');
-    _dbHelper.addScanFA(itemScan);
+  void _saveCode() {
+    if (_barcodeUtils.isNew) {
+      _dbHelper.addSAPFA(_barcodeUtils.sapFA);
+    }
+    _dbHelper.addScanFA(_barcodeUtils.scanFA);
   }
 }

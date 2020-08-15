@@ -24,7 +24,7 @@ class _ExternalReaderState extends State<ExternalReader> {
   TextEditingController scanController = TextEditingController();
   FocusNode myFocusNode;
   StreamController<SAPFA> _refreshController;
-  BarcodeUtils _barcodeUtils = BarcodeUtils();
+  BarcodeUtils _barcodeUtils = new BarcodeUtils();
 
   @override
   void initState() {
@@ -74,6 +74,7 @@ class _ExternalReaderState extends State<ExternalReader> {
   @override
   void dispose() {
     myFocusNode.dispose();
+    _refreshController.close();
     super.dispose();
   }
 

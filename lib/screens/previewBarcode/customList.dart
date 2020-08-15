@@ -37,6 +37,7 @@ class CustomListItem extends StatelessWidget {
                 GestureDetector(
                     child: SizedBox(
                         width: 90,
+                        height: 90,
                         child: FittedBox(
                           fit: BoxFit.fill,
                           child: thumbnail,
@@ -49,6 +50,7 @@ class CustomListItem extends StatelessWidget {
                         child: _BarcodeInfo(
                             barcodeid: barcode.barcodeId,
                             desc: barcode.desc,
+                            loc: barcode.loc,
                             tqty: barcode.qty,
                             scanqty: barcode.scanqty,
                             latestdate: f.format(
@@ -101,6 +103,7 @@ class _BarcodeInfo extends StatelessWidget {
       {Key key,
       this.barcodeid,
       this.desc,
+      this.loc,
       this.tqty,
       this.scanqty,
       this.latestdate})
@@ -108,6 +111,7 @@ class _BarcodeInfo extends StatelessWidget {
 
   final String barcodeid;
   final String desc;
+  final String loc;
   final int tqty;
   final int scanqty;
   final String latestdate;
@@ -145,11 +149,32 @@ class _BarcodeInfo extends StatelessWidget {
                 ),
                 const Padding(padding: EdgeInsets.only(bottom: 2.0)),
                 Text(
-                  tqty == null ? 'Qty: 0' : 'Qty: $tqty',
+                  '$loc',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 12.0,
                     color: Colors.black,
                   ),
+                ),
+                const Padding(padding: EdgeInsets.only(bottom: 2.0)),
+                Row(
+                  children: [
+                    Text(
+                      tqty == null ? 'Qty: 0' : 'Qty: $tqty / ',
+                      style: const TextStyle(
+                        fontSize: 12.0,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      scanqty == null ? 'Scanned: 0' : 'Scanned: $scanqty',
+                      style: const TextStyle(
+                        fontSize: 12.0,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -160,13 +185,6 @@ class _BarcodeInfo extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                Text(
-                  scanqty == null ? 'Scanned: 0' : 'Scanned: $scanqty',
-                  style: const TextStyle(
-                    fontSize: 12.0,
-                    color: Colors.black,
-                  ),
-                ),
                 Text(
                   'Last scan: $latestdate',
                   style: const TextStyle(

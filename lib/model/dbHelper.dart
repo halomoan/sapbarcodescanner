@@ -107,6 +107,20 @@ class DBHelper {
     });
   }
 
+  Future<List<SCANFA>> allScannedFA() async {
+    final db = await init();
+    final maps = await db.rawQuery('select * from scanfa order by barcodeid');
+
+    List<SCANFA> res = new List();
+    maps.forEach((row) => {
+          res.add(SCANFA(
+              barcodeId: row['barcodeid'],
+              seq: row['seq'],
+              createdAt: row['createdat']))
+        });
+    return res;
+  }
+
   Future<List<SCANFA>> getScannedFA(String id, int qty) async {
     final db = await init();
     final maps = await db
@@ -190,6 +204,13 @@ class DBHelper {
         whereArgs: [id]); // use whereArgs to avoid SQL injection);
 
     return noofrec;
+  }
+
+  Future<int> noOfRecord() async {
+    final db = await init();
+
+    final res = await db.rawQuery('select COUNT(*) from scanfa');
+    return Sqflite.firstIntValue(res);
   }
 
   Future<int> delSAPFA(String id) async {

@@ -13,6 +13,10 @@ class PreferenceUtils {
   static Future<SharedPreferences> init() async {
     _prefs = await _instance;
     await _setUniqueID();
+
+    //TODO: Delete This
+    _prefs.setString('serverUrl', 'http://10.19.208.105');
+
     return _prefs;
   }
 

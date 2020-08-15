@@ -17,6 +17,7 @@ class BarcodeUtils {
   SCANFA _scancode;
 
   BarcodeUtils() {
+    PreferenceUtils.init();
     _validLength = PreferenceUtils.coCodeLen +
         PreferenceUtils.mainCodeLen +
         PreferenceUtils.subCodeLen +
@@ -85,6 +86,10 @@ class BarcodeUtils {
 
   SCANFA get scanFA {
     return _scancode;
+  }
+
+  String get scanCode {
+    return _plainCode;
   }
 
   String get barcodeId {
