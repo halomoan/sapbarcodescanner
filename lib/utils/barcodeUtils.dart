@@ -17,7 +17,6 @@ class BarcodeUtils {
   SCANFA _scancode;
 
   BarcodeUtils() {
-    PreferenceUtils.init();
     _validLength = PreferenceUtils.coCodeLen +
         PreferenceUtils.mainCodeLen +
         PreferenceUtils.subCodeLen +

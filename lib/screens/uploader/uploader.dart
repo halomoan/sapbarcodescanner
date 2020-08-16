@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sapfascanner/utils/uploadUtil.dart';
 
 class Uploader extends StatefulWidget {
@@ -10,8 +11,9 @@ class Uploader extends StatefulWidget {
 
 class _UploaderState extends State<Uploader> {
   final UploadUtils _util = new UploadUtils();
-  Map<String, dynamic> status;
+  Map<String, dynamic> res;
   StreamController<String> _progress;
+  bool _inProgress = false;
 
   @override
   initState() {
@@ -55,21 +57,43 @@ class _UploaderState extends State<Uploader> {
             SizedBox(
               height: 40,
             ),
-            StreamBuilder(
-              stream: _progress.stream,
-              builder: (context, snapshot) {
-                return snapshot.hasData
-                    ? Text('In Progress: ${snapshot.data}')
-                    : Container();
-              },
-            ),
+            _inProgress
+                ? StreamBuilder(
+                    stream: _progress.stream,
+                    builder: (context, snapshot) {
+                      return snapshot.hasData
+                          ? Text('In Progress: ${snapshot.data}')
+                          : Container();
+                    },
+                  )
+                : Container(),
             SizedBox(
               height: 40,
             ),
             RaisedButton(
                 onPressed: () async {
-                  status = await _util.doUpload(_progress);
-                  print(status);
+                  _inProgress = true;
+                  res = await _util.doUpload(_progress);
+                  _inProgress = false;
+                  if (!res['status']) {
+                    Fluttertoast.showToast(
+                        msg: res['msg'],
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                        fontSize: 16.0);
+                  } else {
+                    Fluttertoast.showToast(
+                        msg: res['msg'],
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.blue,
+                        textColor: Colors.white,
+                        fontSize: 16.0);
+                  }
                 },
                 child: Text('Upload Now')),
           ],

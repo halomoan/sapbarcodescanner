@@ -9,7 +9,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('SAP Fixed Assxet Scanner'), actions: [
+      appBar: AppBar(title: Text('SAP Fixed Asset Scanner'), actions: [
         IconButton(
           icon: Icon(Ionicons.ios_settings),
           onPressed: () {

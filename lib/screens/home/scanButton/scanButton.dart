@@ -7,7 +7,7 @@ import 'iconCamera.dart';
 
 class CameraButton extends StatelessWidget {
   final DBHelper _dbHelper = DBHelper();
-  final BarcodeUtils _barcodeUtils = new BarcodeUtils();
+  final BarcodeUtils _barcodeUtils = BarcodeUtils();
 
   @override
   Widget build(BuildContext context) {

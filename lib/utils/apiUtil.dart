@@ -34,6 +34,36 @@ class ApiProvider {
     }));
   }
 
+  Future<Map<String, dynamic>> isConnected() async {
+    Map<String, dynamic> result = {'status': false, 'msg': ''};
+
+    if (PreferenceUtils.serverUrl == null ||
+        PreferenceUtils.accessToken == null) {
+      result['status'] = false;
+      result['msg'] = 'Please Initialize This Phone';
+      return result;
+    }
+
+    try {
+      Response response = await _dio.get("/api/facode/test");
+
+      if (response.data['status'] != null && response.data['status']) {
+        result['status'] = true;
+        result['msg'] = response.data['msg'];
+      }
+    } on DioError catch (e) {
+      if (e.message != null) {
+        result['status'] = false;
+        result['msg'] = e.message;
+      }
+    } catch (e) {
+      result['status'] = false;
+      result['msg'] =
+          'Failed to connect to the server. Please check the Settings.';
+    }
+    return result;
+  }
+
   Future<bool> checkRegistration() async {
     if (PreferenceUtils.serverUrl == null) {
       return false;
@@ -100,7 +130,12 @@ class ApiProvider {
 
   Future<Map<String, dynamic>> uploadData(
       StreamController _progress, List<SCANFA> scanfa, List images) async {
-    Map<String, dynamic> result = {'noOfFile': 0, 'status': true, 'msg': ''};
+    Map<String, dynamic> result = {
+      'noOfFile': 0,
+      'noOfCode': 0,
+      'status': true,
+      'msg': ''
+    };
 
     if (PreferenceUtils.serverUrl == null) {
       result['status'] = false;
@@ -108,7 +143,10 @@ class ApiProvider {
       return result;
     }
 
-    result['noOfFile'] = images.length;
+    result = await isConnected();
+    if (!result['status']) {
+      return result;
+    }
 
     List files = new List();
 
@@ -117,20 +155,24 @@ class ApiProvider {
           filename: p.basename(image.path)));
     }
 
+    result['noOfFile'] = files.length;
+
     List codes = new List();
     for (var code in scanfa) {
       codes.add(code.barcodeId);
     }
 
+    result['noOfCode'] = codes.length;
+
     FormData formData = FormData.fromMap({"codes": codes, "files": files});
 
     try {
       Response response = await _dio.post(
-        "/api/faimage",
+        "/api/facode",
         data: formData,
         onSendProgress: (received, total) {
           if (total != -1) {
-            //print((received / total * 100).toStringAsFixed(0) + "%x");
+            //print((received / total * 100).toStringAsFixed(0) + "%");
             _progress.add((received / total * 100).toStringAsFixed(0) + "%");
           }
         },
@@ -139,7 +181,7 @@ class ApiProvider {
       result['status'] =
           (response.data['status'] != null) ? response.data['status'] : false;
       if (result['status']) {
-        result['msg'] = 'Success';
+        result['msg'] = 'Successfully Uploaded';
       } else {
         result['msg'] =
             (response.data['msg'] != null) ? response.data['msg'] : '';

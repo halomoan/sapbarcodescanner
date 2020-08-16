@@ -11,7 +11,7 @@ import 'camera/camera.dart';
 
 Future<Null> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  PreferenceUtils.init();
+  await PreferenceUtils.init();
   runApp(MyApp());
 }
 
