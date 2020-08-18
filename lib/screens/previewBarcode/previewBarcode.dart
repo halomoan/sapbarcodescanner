@@ -34,6 +34,12 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
         title: Text("Preview Barcode"),
         actions: [
           IconButton(
+            icon: Icon(Icons.delete, size: 25.0),
+            onPressed: () {
+              _confirmDelAllDialog();
+            },
+          ),
+          IconButton(
             icon: Icon(Ionicons.ios_refresh),
             onPressed: () {
               _refreshMetadata();
@@ -83,7 +89,7 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
           FlatButton(
             child: Text('Show'),
             onPressed: () async {
-              List<SAPFA> _list = await _dbHelper.getList();
+              List<SAPFA> list = await _dbHelper.getList();
 
               setState(() {
                 //barcodes = _list;
@@ -112,10 +118,10 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
                   ? new ListView.separated(
                       itemBuilder: (context, index) {
                         return CustomListItem(
-                          barcode: snapshot.data[index],
-                          thumbnail: ImageWidget(
-                              barcodeId: snapshot.data[index].barcodeId),
-                        );
+                            barcode: snapshot.data[index],
+                            thumbnail: ImageWidget(
+                                barcodeId: snapshot.data[index].barcodeId),
+                            callback: this._setState);
                       },
                       separatorBuilder: (context, index) => Container(
                           height: 1,
@@ -158,6 +164,63 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
           textColor: Colors.white,
           fontSize: 16.0);
     }
+  }
+
+  void _setState() {
+    setState(() {});
+  }
+
+  void _confirmDelAllDialog() {
+    bool _confirm = false;
+
+    Widget cancelButton = FlatButton(
+      child: Text("Cancel"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget deleteButton = FlatButton(
+      child: Text("Delete"),
+      onPressed: () {
+        _dbHelper.reset();
+        _setState();
+        Navigator.of(context).pop();
+      },
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          // StatefulBuilder
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text("Delete Confirmation"),
+              titlePadding: EdgeInsets.fromLTRB(15, 15, 15, 15),
+              contentPadding: EdgeInsets.fromLTRB(2, 2, 2, 2),
+              content: Container(
+                  height: 60,
+                  width: 100,
+                  child: Column(children: [
+                    CheckboxListTile(
+                      value: _confirm,
+                      title: Text("Yes. I want to delete all codes"),
+                      onChanged: (value) {
+                        setState(() {
+                          _confirm = value;
+                        });
+                      },
+                    ),
+                  ])),
+              actions: [
+                cancelButton,
+                _confirm ? deleteButton : Container(),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   _getFAInfo(String barcodeId) async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sapfascanner/model/dbHelper.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:intl/intl.dart';
 import 'package:sapfascanner/camera/camera.dart';
@@ -10,10 +11,13 @@ class CustomListItem extends StatelessWidget {
   CustomListItem({
     this.thumbnail,
     this.barcode,
+    this.callback,
   });
 
   final Widget thumbnail;
   final SAPFA barcode;
+  final Function callback;
+  final DBHelper _dbHelper = DBHelper();
   final f = new DateFormat('yyyy-MM-dd hh:mm a');
 
   @override
@@ -64,11 +68,52 @@ class CustomListItem extends StatelessWidget {
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[Icon(Icons.delete, size: 25.0)]))
+                        children: <Widget>[
+                          IconButton(
+                              icon: Icon(Icons.delete, size: 25.0),
+                              tooltip: 'Delete This Item',
+                              onPressed: () {
+                                _confirmDel1Dialog(context);
+                              })
+                        ]))
               ],
             ),
           ),
         ));
+  }
+
+  _confirmDel1Dialog(BuildContext context) {
+    // set up the buttons
+    Widget cancelButton = FlatButton(
+      child: Text("Cancel"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget deleteButton = FlatButton(
+      child: Text("Delete"),
+      onPressed: () {
+        _dbHelper.delSAPFA(barcode.barcodeId);
+        callback();
+        Navigator.of(context).pop();
+      },
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Delete Confirmation"),
+      content: Text("Are you sure to delete this item?"),
+      actions: [
+        cancelButton,
+        deleteButton,
+      ],
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
   _onItemTap(BuildContext context, SAPFA barcode) {
