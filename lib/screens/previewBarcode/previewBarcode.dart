@@ -149,6 +149,9 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
             color: Colors.red,
             textColor: Colors.white,
           ),*/
+          SizedBox(
+            height: 1,
+          ),
           Expanded(
               child: FutureBuilder<List>(
             future: _getData(),

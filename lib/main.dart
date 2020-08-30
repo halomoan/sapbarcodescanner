@@ -23,7 +23,8 @@ class MyApp extends StatelessWidget {
       title: 'SAP Fixed Asset Scanner',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.lightBlue[800],
+        accentColor: Colors.cyan[600],
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: '/',
