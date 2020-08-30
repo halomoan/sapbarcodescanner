@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+//import 'package:flutter_icons/flutter_icons.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sapfascanner/model/apimodel.dart';
 import 'package:sapfascanner/model/model.dart';
@@ -18,6 +18,7 @@ class PreviewBarcode extends StatefulWidget {
 class PreviewBarcodeState extends State<PreviewBarcode> {
   final DBHelper _dbHelper = DBHelper();
   final ApiProvider api = new ApiProvider();
+  bool _onlyInvalid = false;
 
   SAPFA barcode;
   SCANFA scancode;
@@ -25,6 +26,35 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
   @override
   void initState() {
     super.initState();
+    _refreshMetadata(true);
+  }
+
+  void _selectChoice(Choice choice) {
+    switch (choice.id) {
+      case 0:
+        if (_onlyInvalid) {
+          setState(() {
+            _onlyInvalid = false;
+          });
+        }
+        break;
+      case 1:
+        if (!_onlyInvalid) {
+          setState(() {
+            _onlyInvalid = true;
+          });
+        }
+        break;
+      case 2:
+        _fixInvalidData();
+        break;
+      case 3:
+        _confirmDelAllDialog();
+        break;
+      case 4:
+        _refreshMetadata(false);
+        break;
+    }
   }
 
   @override
@@ -33,16 +63,26 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
       appBar: AppBar(
         title: Text("Preview Barcode"),
         actions: [
-          IconButton(
-            icon: Icon(Icons.delete, size: 25.0),
-            onPressed: () {
-              _confirmDelAllDialog();
-            },
-          ),
-          IconButton(
-            icon: Icon(Ionicons.ios_refresh),
-            onPressed: () {
-              _refreshMetadata();
+          PopupMenuButton<Choice>(
+            onSelected: _selectChoice,
+            itemBuilder: (BuildContext context) {
+              return choices.map((Choice choice) {
+                if (_onlyInvalid) {
+                  if ([0, 2].contains(choice.id)) {
+                    return PopupMenuItem<Choice>(
+                      value: choice,
+                      child: Text(choice.title),
+                    );
+                  }
+                } else {
+                  if ([1, 3, 4].contains(choice.id)) {
+                    return PopupMenuItem<Choice>(
+                      value: choice,
+                      child: Text(choice.title),
+                    );
+                  }
+                }
+              }).toList();
             },
           ),
         ],
@@ -50,37 +90,37 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
       body: Center(
           child: Column(
         children: <Widget>[
-          FlatButton(
+          /*FlatButton(
             child: Text('Add'),
             onPressed: () {
               barcode = SAPFA(
-                  barcodeId: '20001000001002',
-                  coCode: '2000',
-                  mainCode: '100000',
-                  subCode: '1002',
+                  barcodeId: '91302400000000',
+                  coCode: '9130',
+                  mainCode: '240000',
+                  subCode: '0000',
                   desc: '',
                   loc: '',
                   qty: 0);
               _dbHelper.addSAPFA(barcode);
 
-              scancode = SCANFA(barcodeId: '20001000001002', seq: '0001');
+              scancode = SCANFA(barcodeId: '91302400000000', seq: '0001');
               _dbHelper.addScanFA(scancode);
-              scancode = SCANFA(barcodeId: '20001000001002', seq: '0002');
+              scancode = SCANFA(barcodeId: '91302400000000', seq: '0002');
               _dbHelper.addScanFA(scancode);
 
               barcode = SAPFA(
-                  barcodeId: '20002000001002',
-                  coCode: '2000',
-                  mainCode: '200000',
-                  subCode: '1002',
+                  barcodeId: '91302400010000',
+                  coCode: '9130',
+                  mainCode: '240001',
+                  subCode: '0000',
                   desc: '',
                   loc: '',
                   qty: 0);
               _dbHelper.addSAPFA(barcode);
 
-              scancode = SCANFA(barcodeId: '20002000001002', seq: '0003');
+              scancode = SCANFA(barcodeId: '91302400010000', seq: '0003');
               _dbHelper.addScanFA(scancode);
-              scancode = SCANFA(barcodeId: '20002000001002', seq: '0002');
+              scancode = SCANFA(barcodeId: '91302400010000', seq: '0002');
               _dbHelper.addScanFA(scancode);
             },
             color: Colors.blue,
@@ -108,13 +148,18 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
             },
             color: Colors.red,
             textColor: Colors.white,
-          ),
+          ),*/
           Expanded(
               child: FutureBuilder<List>(
             future: _getData(),
             initialData: List(),
             builder: (context, snapshot) {
-              return snapshot.hasData
+              if (snapshot.connectionState != ConnectionState.done) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return snapshot.hasData && snapshot.data.length > 0
                   ? new ListView.separated(
                       itemBuilder: (context, index) {
                         return CustomListItem(
@@ -129,7 +174,10 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
                           color: Colors.white),
                       itemCount: snapshot.data.length)
                   : Center(
-                      child: CircularProgressIndicator(),
+                      child: Text(
+                        'No Data',
+                        style: TextStyle(fontSize: 25),
+                      ),
                     );
             },
           ))
@@ -139,21 +187,42 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
   }
 
   Future<List<SAPFA>> _getData() {
-    return _dbHelper.getList();
+    if (_onlyInvalid) {
+      return _dbHelper.getInvalidList();
+    } else {
+      return _dbHelper.getList();
+    }
   }
 
-  Future<void> _refreshMetadata() async {
+  Future<void> _refreshMetadata(bool delta) async {
     Map<String, dynamic> res;
 
     res = await api.isConnected();
 
     if (res['status']) {
       List<SAPFA> items = await _getData();
-      DefaultCacheManager().emptyCache();
-      for (final item in items) {
-        _getFAInfo(item.barcodeId);
+
+      List<String> barcodes = new List<String>();
+
+      if (delta) {
+        for (final item in items) {
+          if (item.info == false) {
+            barcodes.add(item.barcodeId);
+          }
+        }
+      } else {
+        DefaultCacheManager().emptyCache();
+        for (final item in items) {
+          barcodes.add(item.barcodeId);
+        }
       }
-      setState(() {});
+
+      await _getFAInfo(barcodes);
+
+      if (barcodes.length > 0) {
+        print('Refresh');
+        setState(() {});
+      }
     } else {
       Fluttertoast.showToast(
           msg: res['msg'],
@@ -168,6 +237,16 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
 
   void _setState() {
     setState(() {});
+  }
+
+  void _fixInvalidData() async {
+    bool res = await _dbHelper.delInvalidData();
+
+    if (res) {
+      setState(() {
+        _onlyInvalid = false;
+      });
+    }
   }
 
   void _confirmDelAllDialog() {
@@ -223,10 +302,21 @@ class PreviewBarcodeState extends State<PreviewBarcode> {
     );
   }
 
-  _getFAInfo(String barcodeId) async {
-    FAInfo result = await api.getFAInfo(barcodeId);
-    if (!result.hasErr) {
-      _dbHelper.updateInfo(barcodeId, result);
-    }
+  _getFAInfo(List barcodes) async {
+    FAInfo result = await api.getFAInfo(barcodes);
   }
 }
+
+class Choice {
+  const Choice({this.id, this.title});
+  final int id;
+  final String title;
+}
+
+const List<Choice> choices = const <Choice>[
+  const Choice(id: 0, title: 'Show All'),
+  const Choice(id: 1, title: 'Show Invalid'),
+  const Choice(id: 2, title: 'Fix Invalid'),
+  const Choice(id: 3, title: 'Delete All'),
+  const Choice(id: 4, title: 'Refresh'),
+];

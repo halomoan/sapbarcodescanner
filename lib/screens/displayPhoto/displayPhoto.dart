@@ -53,7 +53,6 @@ class DisplayPhoto extends StatelessWidget {
   }
 
   Future<ImageProvider<dynamic>> _getImage(String imagePath) async {
-    print(imagePath);
     return imagePath != null
         ? FileImage(File(imagePath))
         : await ImageWidget(barcodeId: barcode.barcodeId).getImageProvider();

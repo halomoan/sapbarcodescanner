@@ -107,6 +107,78 @@ class DBHelper {
     });
   }
 
+  Future<List<SAPFA>> getInvalidList() async {
+    final db = await init();
+
+    String sql =
+        'select sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc,sapfa.photo,sapfa.info,sapfa.qty, count(scanfa.seq) as scanqty, max(createdat) as createdat from sapfa left join scanfa using(barcodeid) ';
+    sql = sql + 'where (sapfa.qty > 0) ';
+    sql = sql +
+        'group by sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc, sapfa.qty ';
+    sql = sql + 'having qty < scanqty';
+    final maps = await db.rawQuery(sql);
+
+    return List.generate(maps.length, (i) {
+      //create a list of memos
+      return SAPFA(
+          barcodeId: maps[i]['barcodeid'],
+          coCode: maps[i]['cocode'],
+          mainCode: maps[i]['maincode'],
+          subCode: maps[i]['subcode'],
+          desc: maps[i]['desc'],
+          loc: maps[i]['loc'],
+          photo: (maps[i]['photo'] == 1) ? true : false,
+          info: (maps[i]['info'] == 1) ? true : false,
+          qty: maps[i]['qty'],
+          scanqty: maps[i]['scanqty'],
+          createdAt: maps[i]['createdat']);
+    });
+  }
+
+  Future<bool> delInvalidData() async {
+    final db = await init();
+
+    String sql =
+        'select sapfa.barcodeid,scanfa.seq, sapfa.qty, cast(scanfa.seq as INTEGER) as scanqty from sapfa left join scanfa using(barcodeid) ';
+    sql = sql + 'where (sapfa.qty > 0 and qty < scanqty) ';
+    final res = await db.rawQuery(sql);
+
+    for (final data in res) {
+      int result = await db.delete('scanfa',
+          where: 'barcodeid = ? and seq = ?',
+          whereArgs: [data["barcodeid"], data["seq"]]);
+    }
+    return true;
+  }
+
+  Future<List<SAPFA>> getValidList() async {
+    final db = await init();
+
+    String sql =
+        'select sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc,sapfa.photo,sapfa.info,sapfa.qty, count(scanfa.seq) as scanqty, max(createdat) as createdat from sapfa left join scanfa using(barcodeid) ';
+    sql = sql + 'where (sapfa.qty > 0 and sapfa.info = 1)';
+    sql = sql +
+        'group by sapfa.barcodeid,sapfa.cocode,sapfa.maincode,sapfa.subcode,sapfa.desc,sapfa.loc, sapfa.qty ';
+    sql = sql + 'having qty >= scanqty';
+    final maps = await db.rawQuery(sql);
+
+    return List.generate(maps.length, (i) {
+      //create a list of memos
+      return SAPFA(
+          barcodeId: maps[i]['barcodeid'],
+          coCode: maps[i]['cocode'],
+          mainCode: maps[i]['maincode'],
+          subCode: maps[i]['subcode'],
+          desc: maps[i]['desc'],
+          loc: maps[i]['loc'],
+          photo: (maps[i]['photo'] == 1) ? true : false,
+          info: (maps[i]['info'] == 1) ? true : false,
+          qty: maps[i]['qty'],
+          scanqty: maps[i]['scanqty'],
+          createdAt: maps[i]['createdat']);
+    });
+  }
+
   Future<List<SCANFA>> allScannedFA() async {
     final db = await init();
     final maps = await db.rawQuery('select * from scanfa order by barcodeid');

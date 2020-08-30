@@ -1,20 +1,24 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:sapfascanner/model/dbHelper.dart';
 import 'package:sapfascanner/model/model.dart';
 import 'package:sapfascanner/utils/PreferenceUtils.dart';
 import 'package:sapfascanner/model/apimodel.dart';
 import 'package:path/path.dart' as p;
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
 class ApiProvider {
   Dio _dio;
+  final DBHelper _dbHelper = DBHelper();
 
   ApiProvider() {
     BaseOptions options = new BaseOptions(
       baseUrl: PreferenceUtils.serverUrl,
       contentType: Headers.jsonContentType,
-      connectTimeout: 5000,
-      receiveTimeout: 3000,
+      connectTimeout: 15000,
+      receiveTimeout: 15000,
     );
     _dio = new Dio(options);
     _dio.interceptors
@@ -87,26 +91,38 @@ class ApiProvider {
     return false;
   }
 
-  Future<FAInfo> getFAInfo(String barcodeId) async {
+  Future<FAInfo> getFAInfo(List barcodes) async {
     FAInfo result;
 
     if (PreferenceUtils.serverUrl == null) {
-      return null;
+      result = new FAInfo(hasErr: true, err: 'Please register this phone');
+      return result;
+    }
+
+    String qString = "";
+    for (final barcode in barcodes) {
+      qString = qString + ';' + barcode;
     }
 
     try {
-      Response response = await _dio.get("/api/facode/" + barcodeId);
+      Response response = await _dio.get("/api/facode/" + qString);
 
-      if (response.data['desc'] != null) {
-        result = new FAInfo(
-            hasErr: false,
-            desc: response.data['desc'],
-            loc: response.data['loc'],
-            qty: int.parse(response.data['qty']),
-            acqdate: response.data['acqdate'],
-            info: true);
-      } else if (response.data['msg'] != null) {
+      if (response.data.length > 0) {
+        for (final data in response.data) {
+          result = new FAInfo(
+              hasErr: false,
+              desc: data['desc'],
+              loc: data['loc'],
+              qty: int.tryParse(data['qty']) ?? 0,
+              acqdate: data['acqdate'],
+              info: true);
+
+          await _dbHelper.updateInfo(data['id'], result);
+        }
+      } else if (response.data.contains('msg')) {
         result = new FAInfo(hasErr: true, err: response.data['msg']);
+      } else {
+        result = new FAInfo(hasErr: true, err: '');
       }
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
@@ -124,7 +140,10 @@ class ApiProvider {
 
         result = new FAInfo(hasErr: true, err: e.message);
       }
+    } catch (e) {
+      result = new FAInfo(hasErr: true, err: e.toString());
     }
+
     return result;
   }
 
@@ -159,12 +178,30 @@ class ApiProvider {
 
     List codes = new List();
     for (var code in scanfa) {
-      codes.add(code.barcodeId);
+      codes.add(code.barcodeId + code.seq);
     }
+
+    String phoneid = PreferenceUtils.uniqueID;
+    String version = PreferenceUtils.version;
+    String cocode = PreferenceUtils.coCode;
+
+    var key = utf8.encode(r'$7653uolSuperKey=88$');
+
+    var bytes = utf8.encode(phoneid);
+    var hmacSha1 = new Hmac(sha1, key);
+
+    var serverkey = base64Encode(hmacSha1.convert(bytes).bytes);
 
     result['noOfCode'] = codes.length;
 
-    FormData formData = FormData.fromMap({"codes": codes, "files": files});
+    FormData formData = FormData.fromMap({
+      "serverkey": serverkey,
+      "version": version,
+      "cocode": cocode,
+      "phoneid": phoneid,
+      "codes": codes,
+      "files": files
+    });
 
     try {
       Response response = await _dio.post(
@@ -196,6 +233,8 @@ class ApiProvider {
         result['status'] = false;
         result['msg'] = e.message;
       }
+    } catch (e) {
+      print(e.response);
     }
 
     return result;
@@ -272,6 +311,7 @@ class ApiProvider {
       if (response.data['access_token'] != null) {
         result = new APIConfig(
             hasErr: false,
+            cocode: response.data['cocode'],
             token: response.data['access_token'],
             sub1len: response.data['sub1len'],
             sub2len: response.data['sub2len'],

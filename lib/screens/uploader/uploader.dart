@@ -51,30 +51,61 @@ class _UploaderState extends State<Uploader> {
               height: 10,
             ),
             Text(
-              'Total Scanned Barcode: ${result["pictTotal"]}',
+              'Total Images: ${result["pictTotal"]}',
               style: TextStyle(fontSize: 20),
             ),
             SizedBox(
               height: 40,
             ),
-            _inProgress
-                ? StreamBuilder(
-                    stream: _progress.stream,
-                    builder: (context, snapshot) {
-                      return snapshot.hasData
-                          ? Text('In Progress: ${snapshot.data}')
-                          : Container();
-                    },
-                  )
-                : Container(),
+            StreamBuilder(
+              stream: _progress.stream,
+              builder: (context, snapshot) {
+                List<Widget> children;
+
+                if (snapshot.connectionState == ConnectionState.active) {
+                  if (snapshot.hasData) {
+                    print(snapshot.data);
+                    if (snapshot.data == 'done') {
+                      children = <Widget>[Container()];
+                    } else {
+                      children = <Widget>[
+                        CircularProgressIndicator(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text('In Progress: ${snapshot.data}'),
+                      ];
+                    }
+                  }
+                } else {
+                  children = <Widget>[Container()];
+                }
+
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: children,
+                );
+                // return snapshot.hasData
+                //     ? Text('In Progress: ${snapshot.data}')
+                //     : Container();
+              },
+            ),
             SizedBox(
               height: 40,
             ),
             RaisedButton(
                 onPressed: () async {
+                  if (_inProgress) {
+                    return;
+                  }
+
                   _inProgress = true;
                   res = await _util.doUpload(_progress);
+
                   _inProgress = false;
+                  _progress.add('done');
+
                   if (!res['status']) {
                     Fluttertoast.showToast(
                         msg: res['msg'],

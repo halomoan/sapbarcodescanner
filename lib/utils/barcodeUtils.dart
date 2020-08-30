@@ -39,8 +39,8 @@ class BarcodeUtils {
             PreferenceUtils.coCodeLen +
                 PreferenceUtils.mainCodeLen +
                 PreferenceUtils.subCodeLen),
-        desc: "",
-        loc: "",
+        desc: "Unknown",
+        loc: "Unknown",
         acqdate: "",
         photo: false,
         info: false,
@@ -53,6 +53,12 @@ class BarcodeUtils {
 
   setCode(String code) async {
     _plainCode = code;
+
+    if (_plainCode.startsWith(PreferenceUtils.coCode)) {
+      this._isValid = false;
+      return;
+    }
+
     if (_plainCode.length == _validLength) {
       _barcodeId = code.substring(
           0,

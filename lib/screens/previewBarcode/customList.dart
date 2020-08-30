@@ -185,7 +185,7 @@ class _BarcodeInfo extends StatelessWidget {
                 const Padding(padding: EdgeInsets.only(bottom: 2.0)),
                 Text(
                   '$desc',
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 12.0,
@@ -194,8 +194,8 @@ class _BarcodeInfo extends StatelessWidget {
                 ),
                 const Padding(padding: EdgeInsets.only(bottom: 2.0)),
                 Text(
-                  '$loc',
-                  maxLines: 2,
+                  'Loc: $loc',
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 12.0,
@@ -214,10 +214,15 @@ class _BarcodeInfo extends StatelessWidget {
                     ),
                     Text(
                       scanqty == null ? 'Scanned: 0' : 'Scanned: $scanqty',
-                      style: const TextStyle(
-                        fontSize: 12.0,
-                        color: Colors.black,
-                      ),
+                      style: (scanqty > tqty)
+                          ? TextStyle(
+                              fontSize: 12.0,
+                              color: Colors.red,
+                            )
+                          : TextStyle(
+                              fontSize: 12.0,
+                              color: Colors.black,
+                            ),
                     ),
                   ],
                 ),

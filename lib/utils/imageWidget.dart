@@ -4,6 +4,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:sapfascanner/utils/PreferenceUtils.dart';
+import 'package:path/path.dart' as p;
 
 class ImageWidget extends StatelessWidget {
   final String barcodeId;
@@ -16,18 +17,26 @@ class ImageWidget extends StatelessWidget {
     try {
       File f = new File(_filePath);
       if (await f.exists()) {
+        //print('Found File');
         return Image.file(f);
       } else {
-        f = await DefaultCacheManager().getSingleFile(
-            PreferenceUtils.serverUrl +
-                '/storage/faimages/' +
-                barcodeId +
-                '.png');
-        return Image.file(f);
+        //print('Look HTTP');
+        final url = PreferenceUtils.serverUrl +
+            '/storage/faimages/' +
+            barcodeId +
+            '.png';
+        f = await DefaultCacheManager().getSingleFile(url);
+
+        if (p.extension(f.path) != '.html') {
+          return Image.file(f);
+        } else {
+          DefaultCacheManager().removeFile(url);
+        }
       }
     } on Exception catch (e) {
       print('error caught: $e');
     } catch (e) {}
+    //print('ASSET');
     return Image.asset("assets/images/barcode.png");
   }
 

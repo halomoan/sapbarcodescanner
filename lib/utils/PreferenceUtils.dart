@@ -14,8 +14,10 @@ class PreferenceUtils {
     _prefs = await _instance;
     await _setUniqueID();
 
+    version = '2.0';
+
     //TODO: Delete This
-    _prefs.setString('serverUrl', 'http://10.19.208.105');
+    serverUrl = 'http://10.19.208.105';
 
     return _prefs;
   }
@@ -119,5 +121,21 @@ class PreferenceUtils {
 
   static set lastUpdate(int value) {
     _prefs.setInt('lastUpdate', value);
+  }
+
+  static get coCode {
+    return _prefs.getString('cocode') ?? '';
+  }
+
+  static set coCode(String value) {
+    _prefs.setString('cocode', value);
+  }
+
+  static get version {
+    return _prefs.getString('version') ?? '0.0';
+  }
+
+  static set version(String value) {
+    _prefs.setString('version', value);
   }
 }

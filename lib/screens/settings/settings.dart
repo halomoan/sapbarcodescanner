@@ -145,6 +145,7 @@ class _SettingsState extends State<Settings> {
                     ),
                   ),
                   _buildConfigServer(),
+                  //_buildCoCode(),
                   // _buildConfigUserID(),
                   // _buildConfigPasswd(),
                   SizedBox(
@@ -191,6 +192,7 @@ class _SettingsState extends State<Settings> {
 
     if (!result.hasError()) {
       PreferenceUtils.accessToken = result.token;
+      PreferenceUtils.coCode = result.cocode;
       PreferenceUtils.coCodeLen = int.parse(result.sub1len);
       PreferenceUtils.mainCodeLen = int.parse(result.sub2len);
       PreferenceUtils.subCodeLen = int.parse(result.sub3len);

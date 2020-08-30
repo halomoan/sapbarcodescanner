@@ -84,7 +84,7 @@ class _ExternalReaderState extends State<ExternalReader> {
 
   Widget _barcodeInfo(SAPFA barcode) {
     return Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(20.0),
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -97,30 +97,40 @@ class _ExternalReaderState extends State<ExternalReader> {
                 style: TextStyle(fontSize: 25),
               ),
               SizedBox(
-                height: 20,
+                height: 10,
+              ),
+              GestureDetector(
+                  child: SizedBox(
+                      width: 120,
+                      height: 120,
+                      child: FittedBox(
+                        fit: BoxFit.fill,
+                        child: ImageWidget(barcodeId: barcode.barcodeId),
+                      ))),
+              SizedBox(
+                height: 10,
               ),
               Text(
                 barcode.desc,
-                style: TextStyle(fontSize: 20),
-              ),
-              Text(
-                barcode.loc,
-                style: TextStyle(fontSize: 20),
-              ),
-              Text(
-                'Purchased On: ${barcode.acqdate}',
-                style: TextStyle(fontSize: 20),
-              ),
-              Text(
-                'Quantity: ${barcode.qty}',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 15),
+                textAlign: TextAlign.center,
               ),
               SizedBox(
-                  width: 120,
-                  child: FittedBox(
-                    fit: BoxFit.fill,
-                    child: ImageWidget(barcodeId: barcode.barcodeId),
-                  )),
+                height: 5,
+              ),
+              Text(
+                'Location: ${barcode.loc}',
+                style: TextStyle(fontSize: 12),
+                textAlign: TextAlign.center,
+              ),
+              // Text(
+              //   'Purchased On: ${barcode.acqdate}',
+              //   style: TextStyle(fontSize: 20),
+              // ),
+              Text(
+                'Qty: ${barcode.qty}',
+                style: TextStyle(fontSize: 15),
+              ),
             ]));
   }
 
@@ -145,7 +155,7 @@ class _ExternalReaderState extends State<ExternalReader> {
                 onPressed: () {
                   iCounter++;
                   scanController.text =
-                      '20003000001001000' + iCounter.toString();
+                      '20002400140000000' + iCounter.toString();
                 },
                 child: Text('Testing1')),
             SizedBox(
@@ -199,10 +209,15 @@ class _ExternalReaderState extends State<ExternalReader> {
   }
 
   _getFAInfo(String barcodeId) async {
-    FAInfo result = await api.getFAInfo(barcodeId);
+    List<String> barcodes = new List<String>();
+
+    barcodes.add(barcodeId);
+    FAInfo result = await api.getFAInfo(barcodes);
     if (!result.hasErr) {
       _dbHelper.updateInfo(barcodeId, result);
-      SAPFA _barcode = await _dbHelper.getSAPFA(barcodeId);
+    }
+    SAPFA _barcode = await _dbHelper.getSAPFA(barcodeId);
+    if (!_refreshController.isClosed) {
       _refreshController.add(_barcode);
     }
   }

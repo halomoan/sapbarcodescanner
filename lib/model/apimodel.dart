@@ -1,5 +1,6 @@
 class APIConfig {
   String token;
+  String cocode;
   String sub1len;
   String sub2len;
   String sub3len;
@@ -9,6 +10,7 @@ class APIConfig {
 
   APIConfig(
       {this.token,
+      this.cocode,
       this.sub1len,
       this.sub2len,
       this.sub3len,
@@ -23,6 +25,7 @@ class APIConfig {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       "token": token,
+      "cocode": cocode,
       "sub1len": sub1len,
       "sub2len": sub2len,
       "sub3len": sub3len,
@@ -33,6 +36,7 @@ class APIConfig {
   factory APIConfig.fromJson(Map<String, dynamic> json) {
     return APIConfig(
         token: json['access_token'],
+        cocode: json['cocode'],
         sub1len: json['sub1len'],
         sub2len: json['sub2len'],
         sub3len: json['sub3len'],
